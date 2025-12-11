@@ -1,0 +1,15 @@
+pyproject.toml
+src/company_eval_framework/__init__.py
+src/company_eval_framework/axial.py
+src/company_eval_framework/cli.py
+src/company_eval_framework/config.py
+src/company_eval_framework/dataset.py
+src/company_eval_framework/evaluators.py
+src/company_eval_framework/runner.py
+src/company_eval_framework/utils.py
+src/company_eval_framework.egg-info/PKG-INFO
+src/company_eval_framework.egg-info/SOURCES.txt
+src/company_eval_framework.egg-info/dependency_links.txt
+src/company_eval_framework.egg-info/entry_points.txt
+src/company_eval_framework.egg-info/requires.txt
+src/company_eval_framework.egg-info/top_level.txt

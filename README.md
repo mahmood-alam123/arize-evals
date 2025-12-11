@@ -1,1 +1,1 @@
-# arize-evals
+# Evaluation Framework Monorepo

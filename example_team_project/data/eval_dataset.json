@@ -1,0 +1,17 @@
+[
+  {
+    "query": "How do I track my order?",
+    "business_context": "E-commerce order tracking",
+    "expected_intent": "order_tracking"
+  },
+  {
+    "query": "Can I return an item?",
+    "business_context": "E-commerce returns policy",
+    "expected_intent": "returns"
+  },
+  {
+    "query": "What's your return policy?",
+    "business_context": "E-commerce returns policy",
+    "expected_intent": "policy_inquiry"
+  }
+]

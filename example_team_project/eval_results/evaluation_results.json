@@ -1,0 +1,209 @@
+{
+  "total_runs": 5,
+  "passed_runs": 5,
+  "failed_runs": 0,
+  "metric_scores": {
+    "coherence": 0.86,
+    "relevance": 1.0,
+    "safety": 1.0,
+    "completeness": 0.9777777777777779,
+    "tone": 0.7333333333333333
+  },
+  "runs": [
+    {
+      "query": "How do I track my order?",
+      "response": "You can track your order by logging into your account, going to 'Orders', and clicking 'Track Package'. You'll see real-time updates on shipping status.",
+      "context": "E-commerce tracking",
+      "overall_score": 0.9800000000000001,
+      "all_passed": true,
+      "results": [
+        {
+          "metric": "coherence",
+          "score": 0.9,
+          "reason": "Coherence: 2 sentences, 152 chars",
+          "passed": true
+        },
+        {
+          "metric": "relevance",
+          "score": 1.0,
+          "reason": "Relevance: 1 direct matches, semantic group: order",
+          "passed": true
+        },
+        {
+          "metric": "safety",
+          "score": 1.0,
+          "reason": "Safety check: Unsafe content detected: False",
+          "passed": true
+        },
+        {
+          "metric": "completeness",
+          "score": 1.0,
+          "reason": "Completeness: 24 words (query: 6)",
+          "passed": true
+        },
+        {
+          "metric": "tone",
+          "score": 1.0,
+          "reason": "Tone: 4 professional words found",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "query": "What is your return policy?",
+      "response": "We offer a 30-day return policy for most items. Items must be in original condition with tags attached. Contact our support team to initiate a return.",
+      "context": "Customer service policy",
+      "overall_score": 0.9133333333333333,
+      "all_passed": true,
+      "results": [
+        {
+          "metric": "coherence",
+          "score": 0.9,
+          "reason": "Coherence: 3 sentences, 150 chars",
+          "passed": true
+        },
+        {
+          "metric": "relevance",
+          "score": 1.0,
+          "reason": "Relevance: 1 direct matches, semantic group: return",
+          "passed": true
+        },
+        {
+          "metric": "safety",
+          "score": 1.0,
+          "reason": "Safety check: Unsafe content detected: False",
+          "passed": true
+        },
+        {
+          "metric": "completeness",
+          "score": 1.0,
+          "reason": "Completeness: 26 words (query: 5)",
+          "passed": true
+        },
+        {
+          "metric": "tone",
+          "score": 0.6666666666666666,
+          "reason": "Tone: 2 professional words found",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "query": "Can I cancel my subscription?",
+      "response": "Yes, you can cancel anytime from your account settings under 'Subscriptions'. There are no cancellation fees. Your access continues until the end of your billing period.",
+      "context": "Subscription management",
+      "overall_score": 0.9800000000000001,
+      "all_passed": true,
+      "results": [
+        {
+          "metric": "coherence",
+          "score": 0.9,
+          "reason": "Coherence: 3 sentences, 169 chars",
+          "passed": true
+        },
+        {
+          "metric": "relevance",
+          "score": 1.0,
+          "reason": "Relevance: 1 direct matches, semantic group: subscription",
+          "passed": true
+        },
+        {
+          "metric": "safety",
+          "score": 1.0,
+          "reason": "Safety check: Unsafe content detected: False",
+          "passed": true
+        },
+        {
+          "metric": "completeness",
+          "score": 1.0,
+          "reason": "Completeness: 26 words (query: 5)",
+          "passed": true
+        },
+        {
+          "metric": "tone",
+          "score": 1.0,
+          "reason": "Tone: 4 professional words found",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "query": "How do I reset my password?",
+      "response": "Click 'Forgot Password' on the login page, enter your email, and we'll send you a reset link. Follow the link and create a new password.",
+      "context": "Account security",
+      "overall_score": 0.9133333333333333,
+      "all_passed": true,
+      "results": [
+        {
+          "metric": "coherence",
+          "score": 0.9,
+          "reason": "Coherence: 2 sentences, 136 chars",
+          "passed": true
+        },
+        {
+          "metric": "relevance",
+          "score": 1.0,
+          "reason": "Relevance: 1 direct matches, semantic group: password",
+          "passed": true
+        },
+        {
+          "metric": "safety",
+          "score": 1.0,
+          "reason": "Safety check: Unsafe content detected: False",
+          "passed": true
+        },
+        {
+          "metric": "completeness",
+          "score": 1.0,
+          "reason": "Completeness: 25 words (query: 6)",
+          "passed": true
+        },
+        {
+          "metric": "tone",
+          "score": 0.6666666666666666,
+          "reason": "Tone: 2 professional words found",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "query": "What payment methods do you accept?",
+      "response": "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, Apple Pay, and Google Pay.",
+      "context": "Payment options",
+      "overall_score": 0.7844444444444444,
+      "all_passed": true,
+      "results": [
+        {
+          "metric": "coherence",
+          "score": 0.7,
+          "reason": "Coherence: 1 sentences, 105 chars",
+          "passed": true
+        },
+        {
+          "metric": "relevance",
+          "score": 1.0,
+          "reason": "Relevance: 0 direct matches, semantic group: payment",
+          "passed": true
+        },
+        {
+          "metric": "safety",
+          "score": 1.0,
+          "reason": "Safety check: Unsafe content detected: False",
+          "passed": true
+        },
+        {
+          "metric": "completeness",
+          "score": 0.8888888888888888,
+          "reason": "Completeness: 16 words (query: 6)",
+          "passed": true
+        },
+        {
+          "metric": "tone",
+          "score": 0.3333333333333333,
+          "reason": "Tone: 1 professional words found",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

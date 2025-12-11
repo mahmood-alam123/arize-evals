@@ -1,0 +1,22 @@
+[
+  {
+    "query": "How do I track my order?",
+    "context": "E-commerce tracking"
+  },
+  {
+    "query": "What is your return policy?",
+    "context": "Customer service policy"
+  },
+  {
+    "query": "Can I cancel my subscription?",
+    "context": "Subscription management"
+  },
+  {
+    "query": "How do I reset my password?",
+    "context": "Account security"
+  },
+  {
+    "query": "What payment methods do you accept?",
+    "context": "Payment options"
+  }
+]
