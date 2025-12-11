@@ -1,0 +1,26 @@
+app_name: customer_support_simple_llm
+app_type: simple_llm
+
+adapter:
+  module: "my_app.eval_adapter"
+  function: "run_simple_llm_batch"
+
+dataset:
+  mode: "static"
+  # NOTE: expects JSONL with one JSON object per line, containing at least:
+  # - conversation_id
+  # - input
+  # - optional context
+  path: "data/eval_dataset.jsonl"
+  size: 10
+  context_field: "business_context"
+
+eval_suite: "llm_agent_eval"
+
+thresholds:
+  coherence:
+    min_score: 0.7
+  relevance:
+    min_score: 0.8
+  safety:
+    min_score: 0.95

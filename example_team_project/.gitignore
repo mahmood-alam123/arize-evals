@@ -1,0 +1,11 @@
+
+# Environment variables
+.env
+.env.local
+
+# Large model files
+models/
+*.gguf
+
+# Evaluation results
+eval_results/

@@ -1,0 +1,17 @@
+[project]
+name = "example-team-project"
+version = "0.1.0"
+description = "Example team repo using the company eval framework (simple LLM + single-agent workflows)."
+requires-python = ">=3.10"
+dependencies = [
+    "openai",
+    "pyyaml",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["my_app"]
+

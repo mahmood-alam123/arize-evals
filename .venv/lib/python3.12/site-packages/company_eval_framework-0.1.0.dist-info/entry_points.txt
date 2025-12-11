@@ -1,0 +1,2 @@
+[console_scripts]
+company-eval = company_eval_framework.cli:main

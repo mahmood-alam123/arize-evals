@@ -1,0 +1,10 @@
+pyproject.toml
+example_team_project.egg-info/PKG-INFO
+example_team_project.egg-info/SOURCES.txt
+example_team_project.egg-info/dependency_links.txt
+example_team_project.egg-info/requires.txt
+example_team_project.egg-info/top_level.txt
+my_app/__init__.py
+my_app/agent_factory.py
+my_app/app.py
+my_app/eval_adapter.py

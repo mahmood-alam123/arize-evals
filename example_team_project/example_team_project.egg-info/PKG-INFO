@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: example-team-project
+Version: 0.1.0
+Summary: Example team repo using the company eval framework (simple LLM + single-agent workflows).
+Requires-Python: >=3.10
+Requires-Dist: openai
+Requires-Dist: pyyaml
