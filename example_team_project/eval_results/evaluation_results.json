@@ -3,16 +3,16 @@
   "passed_runs": 5,
   "failed_runs": 0,
   "metric_scores": {
-    "coherence": 0.86,
+    "coherence": 0.9,
     "relevance": 1.0,
     "safety": 1.0,
-    "completeness": 0.9777777777777779,
-    "tone": 0.7333333333333333
+    "completeness": 1.0,
+    "tone": 0.9333333333333333
   },
   "runs": [
     {
       "query": "How do I track my order?",
-      "response": "You can track your order by logging into your account, going to 'Orders', and clicking 'Track Package'. You'll see real-time updates on shipping status.",
+      "response": "You can track your order by clicking the tracking link provided in your order confirmation or shipping confirmation email. Alternatively, log in to your account on our website, go to \"My Orders,\" and select the order you wish to track. Let us know if you need further assistance!",
       "context": "E-commerce tracking",
       "overall_score": 0.9800000000000001,
       "all_passed": true,
@@ -20,7 +20,7 @@
         {
           "metric": "coherence",
           "score": 0.9,
-          "reason": "Coherence: 2 sentences, 152 chars",
+          "reason": "Coherence: 3 sentences, 279 chars",
           "passed": true
         },
         {
@@ -38,28 +38,28 @@
         {
           "metric": "completeness",
           "score": 1.0,
-          "reason": "Completeness: 24 words (query: 6)",
+          "reason": "Completeness: 48 words (query: 6)",
           "passed": true
         },
         {
           "metric": "tone",
           "score": 1.0,
-          "reason": "Tone: 4 professional words found",
+          "reason": "Tone: 5 professional words found",
           "passed": true
         }
       ]
     },
     {
       "query": "What is your return policy?",
-      "response": "We offer a 30-day return policy for most items. Items must be in original condition with tags attached. Contact our support team to initiate a return.",
+      "response": "Our return policy allows you to return items within 30 days of delivery, provided they are in their original condition and packaging. Some items may have specific return restrictions, which are detailed on the product page. Please contact us for help initiating a return.",
       "context": "Customer service policy",
-      "overall_score": 0.9133333333333333,
+      "overall_score": 0.9800000000000001,
       "all_passed": true,
       "results": [
         {
           "metric": "coherence",
           "score": 0.9,
-          "reason": "Coherence: 3 sentences, 150 chars",
+          "reason": "Coherence: 3 sentences, 271 chars",
           "passed": true
         },
         {
@@ -77,20 +77,20 @@
         {
           "metric": "completeness",
           "score": 1.0,
-          "reason": "Completeness: 26 words (query: 5)",
+          "reason": "Completeness: 44 words (query: 5)",
           "passed": true
         },
         {
           "metric": "tone",
-          "score": 0.6666666666666666,
-          "reason": "Tone: 2 professional words found",
+          "score": 1.0,
+          "reason": "Tone: 4 professional words found",
           "passed": true
         }
       ]
     },
     {
       "query": "Can I cancel my subscription?",
-      "response": "Yes, you can cancel anytime from your account settings under 'Subscriptions'. There are no cancellation fees. Your access continues until the end of your billing period.",
+      "response": "Yes, you can cancel your subscription anytime through your account settings. Navigate to the \"Subscriptions\" section, select your active subscription, and choose \"Cancel.\" If you need further assistance, feel free to reach out to us!",
       "context": "Subscription management",
       "overall_score": 0.9800000000000001,
       "all_passed": true,
@@ -98,7 +98,7 @@
         {
           "metric": "coherence",
           "score": 0.9,
-          "reason": "Coherence: 3 sentences, 169 chars",
+          "reason": "Coherence: 3 sentences, 233 chars",
           "passed": true
         },
         {
@@ -116,7 +116,7 @@
         {
           "metric": "completeness",
           "score": 1.0,
-          "reason": "Completeness: 26 words (query: 5)",
+          "reason": "Completeness: 35 words (query: 5)",
           "passed": true
         },
         {
@@ -129,15 +129,15 @@
     },
     {
       "query": "How do I reset my password?",
-      "response": "Click 'Forgot Password' on the login page, enter your email, and we'll send you a reset link. Follow the link and create a new password.",
+      "response": "To reset your password, click the \"Forgot Password\" link on the login page and enter your registered email address. You\u2019ll receive an email with instructions to create a new password. If you don\u2019t see the email, check your spam folder or contact us for assistance.",
       "context": "Account security",
-      "overall_score": 0.9133333333333333,
+      "overall_score": 0.9800000000000001,
       "all_passed": true,
       "results": [
         {
           "metric": "coherence",
           "score": 0.9,
-          "reason": "Coherence: 2 sentences, 136 chars",
+          "reason": "Coherence: 3 sentences, 264 chars",
           "passed": true
         },
         {
@@ -155,34 +155,34 @@
         {
           "metric": "completeness",
           "score": 1.0,
-          "reason": "Completeness: 25 words (query: 6)",
+          "reason": "Completeness: 45 words (query: 6)",
           "passed": true
         },
         {
           "metric": "tone",
-          "score": 0.6666666666666666,
-          "reason": "Tone: 2 professional words found",
+          "score": 1.0,
+          "reason": "Tone: 4 professional words found",
           "passed": true
         }
       ]
     },
     {
       "query": "What payment methods do you accept?",
-      "response": "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, Apple Pay, and Google Pay.",
+      "response": "We accept major credit and debit cards, PayPal, and some digital wallets like Apple Pay and Google Pay. Availability may vary based on your location. Please check the payment options at checkout for more details.",
       "context": "Payment options",
-      "overall_score": 0.7844444444444444,
+      "overall_score": 0.9133333333333333,
       "all_passed": true,
       "results": [
         {
           "metric": "coherence",
-          "score": 0.7,
-          "reason": "Coherence: 1 sentences, 105 chars",
+          "score": 0.9,
+          "reason": "Coherence: 3 sentences, 212 chars",
           "passed": true
         },
         {
           "metric": "relevance",
           "score": 1.0,
-          "reason": "Relevance: 0 direct matches, semantic group: payment",
+          "reason": "Relevance: 1 direct matches, semantic group: payment",
           "passed": true
         },
         {
@@ -193,14 +193,14 @@
         },
         {
           "metric": "completeness",
-          "score": 0.8888888888888888,
-          "reason": "Completeness: 16 words (query: 6)",
+          "score": 1.0,
+          "reason": "Completeness: 35 words (query: 6)",
           "passed": true
         },
         {
           "metric": "tone",
-          "score": 0.3333333333333333,
-          "reason": "Tone: 1 professional words found",
+          "score": 0.6666666666666666,
+          "reason": "Tone: 2 professional words found",
           "passed": true
         }
       ]

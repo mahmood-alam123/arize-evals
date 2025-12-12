@@ -39,27 +39,46 @@ class MockAgent:
 
 
 class OpenAIAgent:
-    """Agent that uses OpenAI's Chat API."""
-    
-    def __init__(self, model: str = "gpt-3.5-turbo", temperature: float = 0.7, max_tokens: int = 200):
-        """Initialize OpenAI agent.
-        
+    """Agent that uses Azure OpenAI's Chat Completions API."""
+
+    def __init__(
+        self,
+        model: str = "gpt-4o-deployment",
+        temperature: float = 0.7,
+        max_tokens: int = 200,
+    ):
+        """Initialize Azure OpenAI agent.
+
         Args:
-            model: OpenAI model name (gpt-3.5-turbo, gpt-4, etc.)
+            model: Azure deployment name (e.g., gpt-4o-deployment)
             temperature: Sampling temperature (0.0 - 2.0)
             max_tokens: Maximum tokens in response
         """
         try:
-            import openai
+            from openai import AzureOpenAI, APIConnectionError, RateLimitError, AuthenticationError
         except ImportError:
             raise ImportError("OpenAI package required. Install with: pip install openai")
-        
-        self.openai = openai
+
         api_key = os.getenv("OPENAI_API_KEY")
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+
         if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
-        
-        self.openai.api_key = api_key
+            raise ValueError("OPENAI_API_KEY environment variable not set (Azure OpenAI key)")
+        if not azure_endpoint:
+            raise ValueError("AZURE_OPENAI_ENDPOINT environment variable not set (e.g. https://<resource>.openai.azure.com/)")
+
+        # Store client and error types
+        self.client = AzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_endpoint=azure_endpoint,
+        )
+        self.AuthenticationError = AuthenticationError
+        self.RateLimitError = RateLimitError
+        self.APIConnectionError = APIConnectionError
+
+        # In Azure, `model` is the deployment name
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
@@ -67,57 +86,50 @@ class OpenAIAgent:
         self.system_prompt = """You are a helpful customer support agent for an e-commerce company.
 You provide accurate, concise, and professional responses to customer inquiries.
 Keep responses to 2-3 sentences maximum."""
-    
+
     def process_query(self, query: str, context: Optional[str] = None) -> str:
-        """Process query using OpenAI API.
-        
+        """Process query using Azure OpenAI Chat Completions API.
+
         Args:
             query: Customer's question
             context: Optional business context
-            
+
         Returns:
             Agent's response from the LLM
         """
-        # Add context to system prompt if provided
         system = self.system_prompt
         if context:
             system += f"\nContext: {context}"
-        
-        # Add user message to history
-        self.conversation_history.append({
-            "role": "user",
-            "content": query
-        })
-        
+
+        # Build messages from conversation history + new user message
+        messages = [{"role": "system", "content": system}]
+        messages.extend(self.conversation_history)
+        messages.append({"role": "user", "content": query})
+
         try:
-            # Call OpenAI API
-            response = self.openai.ChatCompletion.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system},
-                    *self.conversation_history,
-                ],
+            resp = self.client.chat.completions.create(
+                model=self.model,  # deployment name (e.g., gpt-4o-deployment)
+                messages=messages,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
             )
-            
-            agent_response = response.choices[0].message.content
-            
-            # Add to history
-            self.conversation_history.append({
-                "role": "assistant",
-                "content": agent_response
-            })
-            
+            agent_response = resp.choices[0].message.content or ""
+
+            # Update history with user + assistant turns
+            self.conversation_history.append({"role": "user", "content": query})
+            self.conversation_history.append({"role": "assistant", "content": agent_response})
+
             return agent_response
-            
-        except self.openai.error.AuthenticationError:
-            return "Error: OpenAI API key authentication failed"
-        except self.openai.error.RateLimitError:
-            return "Error: Rate limit exceeded. Please try again later."
+
+        except self.AuthenticationError:
+            return "Error: Azure OpenAI API key authentication failed"
+        except self.RateLimitError:
+            return "Error: Azure OpenAI rate limit exceeded. Please try again later."
+        except self.APIConnectionError:
+            return "Error: Network error while calling Azure OpenAI API"
         except Exception as e:
-            return f"Error calling OpenAI: {str(e)}"
-    
+            return f"Error calling Azure OpenAI: {str(e)}"
+
     def reset(self):
         """Reset conversation history."""
         self.conversation_history = []
