@@ -1,0 +1,19 @@
+app_name: basic_chat_llm_fail
+app_type: simple_chat
+
+adapter:
+  module: "example_team_project.my_app.eval_adapter"
+  function: "run_simple_llm_batch_bad"
+
+dataset:
+  mode: "static"
+  path: "example_team_project/data/eval_dataset.jsonl"
+  size: 5
+
+eval_suite: "basic_chat"
+
+thresholds:
+  user_frustration:
+    max_mean: 0.3
+  helpfulness_quality:
+    min_mean: 0.7

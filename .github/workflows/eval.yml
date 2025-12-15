@@ -1,0 +1,175 @@
+name: LLM Evaluation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dataset_mode:
+        description: 'Dataset mode'
+        required: true
+        default: 'static'
+        type: choice
+        options:
+          - static
+          - synthetic
+          - both
+      eval_config:
+        description: 'Evaluation config file'
+        required: false
+        default: 'example_team_project/eval_config_basic_chat_pass.yaml'
+        type: string
+      num_synthetic_examples:
+        description: 'Number of synthetic examples (if synthetic mode)'
+        required: false
+        default: '10'
+        type: string
+
+jobs:
+  evaluate-static:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.dataset_mode == 'static' || inputs.dataset_mode == 'both' }}
+    runs-on: ubuntu-latest
+    name: Evaluate (Static Dataset)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install eval_framework
+        run: pip install -e eval_framework/
+
+      - name: Install example_team_project
+        run: pip install -e example_team_project/
+
+      - name: Run LLM Evaluation (Static)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMBEDDING_DEPLOYMENT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+        run: |
+          CONFIG="${{ inputs.eval_config || 'example_team_project/eval_config_basic_chat_pass.yaml' }}"
+          echo "Running evaluation with config: $CONFIG"
+          company-eval ci-run --config "$CONFIG"
+
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results-static
+          path: |
+            eval_results/
+            *.json
+          retention-days: 30
+
+  evaluate-synthetic:
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.dataset_mode == 'synthetic' || inputs.dataset_mode == 'both') }}
+    runs-on: ubuntu-latest
+    name: Evaluate (Synthetic Dataset)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install eval_framework
+        run: pip install -e eval_framework/
+
+      - name: Install example_team_project
+        run: pip install -e example_team_project/
+
+      - name: Generate Synthetic Dataset
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+        run: |
+          echo "Generating synthetic dataset..."
+          company-eval generate-dataset \
+            --app-type simple_chat \
+            --output /tmp/synthetic_dataset.jsonl \
+            --num-examples ${{ inputs.num_synthetic_examples || '10' }} \
+            --description "Customer support chatbot for a SaaS product"
+
+          echo "Generated dataset:"
+          cat /tmp/synthetic_dataset.jsonl
+
+      - name: Create Synthetic Config
+        run: |
+          cat > /tmp/eval_config_synthetic.yaml << 'EOF'
+          app_name: synthetic_eval
+          app_type: simple_chat
+
+          adapter:
+            module: "example_team_project.my_app.eval_adapter"
+            function: "run_simple_llm_batch"
+
+          dataset:
+            mode: "static"
+            path: "/tmp/synthetic_dataset.jsonl"
+            size: ${{ inputs.num_synthetic_examples || '10' }}
+
+          eval_suite: "basic_chat"
+
+          thresholds:
+            user_frustration:
+              max_mean: 0.3
+            helpfulness_quality:
+              min_mean: 0.7
+          EOF
+
+      - name: Run LLM Evaluation (Synthetic)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_CHAT_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_CHAT_DEPLOYMENT }}
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_EMBEDDING_DEPLOYMENT }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+        run: |
+          echo "Running evaluation with synthetic dataset..."
+          company-eval ci-run --config /tmp/eval_config_synthetic.yaml
+
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results-synthetic
+          path: |
+            eval_results/
+            /tmp/synthetic_dataset.jsonl
+            *.json
+          retention-days: 30
+
+  summary:
+    needs: [evaluate-static, evaluate-synthetic]
+    if: always()
+    runs-on: ubuntu-latest
+    name: Evaluation Summary
+
+    steps:
+      - name: Summary
+        run: |
+          echo "## Evaluation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Static Dataset | ${{ needs.evaluate-static.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Synthetic Dataset | ${{ needs.evaluate-synthetic.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY

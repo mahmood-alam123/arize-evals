@@ -1,0 +1,5 @@
+{"conversation_id": "1", "input": "How do I reset my password?", "business_context": "User cannot log in to their SaaS account and needs a password reset."}
+{"conversation_id": "2", "input": "What payment methods do you accept?", "business_context": "User is about to upgrade their plan and wants to know supported payment options."}
+{"conversation_id": "3", "input": "Can I cancel my subscription at any time?", "business_context": "User is considering downgrading or canceling their subscription."}
+{"conversation_id": "4", "input": "How do I update my billing information?", "business_context": "User needs to change the credit card on file."}
+{"conversation_id": "5", "input": "Where can I see my past invoices?", "business_context": "User wants to download previous invoices for accounting."}

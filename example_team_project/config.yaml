@@ -1,0 +1,26 @@
+# Agent Configuration
+# Supports: "openai", "local", "mock"
+agent:
+  type: "mock"  # Change to "openai" to use real API
+  model: "gpt-3.5-turbo"
+  temperature: 0.7
+  max_tokens: 200
+
+# OpenAI Configuration (only needed if type: "openai")
+openai:
+  api_key: "${OPENAI_API_KEY}"
+
+# Local LLM Configuration (only needed if type: "local")
+local:
+  model_path: "./models/model.gguf"
+
+# Evaluation Configuration
+evaluation:
+  dataset: "eval_dataset.json"
+  results_dir: "eval_results"
+  metrics:
+    - coherence
+    - relevance
+    - safety
+    - completeness
+    - tone

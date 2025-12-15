@@ -18,8 +18,8 @@ from phoenix.evals.default_templates import (
     QA_PROMPT_RAILS_MAP,
     TOXICITY_PROMPT_TEMPLATE,
     TOXICITY_PROMPT_RAILS_MAP,
-    RELEVANCE_PROMPT_TEMPLATE,
-    RELEVANCE_PROMPT_RAILS_MAP,
+    RAG_RELEVANCY_PROMPT_TEMPLATE,
+    RAG_RELEVANCY_PROMPT_RAILS_MAP,
 )
 
 
@@ -27,13 +27,32 @@ def get_llm_judge(model: Optional[str] = None) -> OpenAIModel:
     """
     Get an LLM judge instance for running evaluations.
 
+    Supports both standard OpenAI and Azure OpenAI. If AZURE_OPENAI_ENDPOINT
+    is set, uses Azure OpenAI configuration.
+
     Args:
-        model: Model name to use. Defaults to "gpt-4o-mini".
+        model: Model name to use. Defaults to "gpt-4o-mini" or Azure deployment.
 
     Returns:
         OpenAIModel instance configured for evaluation
     """
-    return OpenAIModel(model=model or "gpt-4o-mini")
+    import os
+
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+    azure_deployment = os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT")
+    api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-01")
+
+    if azure_endpoint and azure_deployment:
+        # Use Azure OpenAI
+        return OpenAIModel(
+            model=model or "gpt-4o",
+            azure_endpoint=azure_endpoint,
+            azure_deployment=azure_deployment,
+            api_version=api_version,
+        )
+    else:
+        # Use standard OpenAI
+        return OpenAIModel(model=model or "gpt-4o-mini")
 
 
 # Custom prompt templates for metrics not in Phoenix defaults
@@ -152,6 +171,76 @@ ANSWER_QUALITY_RAILS_MAP = {
     "low_quality": "low_quality",
 }
 
+# Custom RAG templates that use 'context' instead of 'reference'
+RAG_HALLUCINATION_PROMPT_TEMPLATE = """
+You are evaluating whether an AI assistant's response contains hallucinations
+based on the provided context.
+
+[User Query]
+{input}
+
+[Retrieved Context]
+{context}
+
+[Assistant Response]
+{output}
+
+Determine if the response is factual (fully supported by the context) or
+hallucinated (contains claims not supported by or contradicting the context).
+
+Respond with one of: factual, hallucinated
+"""
+
+RAG_HALLUCINATION_RAILS_MAP = {
+    "factual": "factual",
+    "hallucinated": "hallucinated",
+}
+
+RAG_ANSWER_QUALITY_PROMPT_TEMPLATE = """
+You are evaluating the quality of an AI assistant's answer to a question,
+given the context that was retrieved.
+
+[User Query]
+{input}
+
+[Retrieved Context]
+{context}
+
+[Assistant Response]
+{output}
+
+Evaluate whether the response correctly answers the question based on the context:
+- Is it accurate according to the context?
+- Does it address what the user asked?
+- Is it complete and helpful?
+
+Respond with one of: correct, incorrect
+"""
+
+RAG_ANSWER_QUALITY_RAILS_MAP = {
+    "correct": "correct",
+    "incorrect": "incorrect",
+}
+
+RAG_DOCUMENT_RELEVANCE_PROMPT_TEMPLATE = """
+You are evaluating whether the retrieved context is relevant to the user's query.
+
+[User Query]
+{input}
+
+[Retrieved Context]
+{context}
+
+Determine if the retrieved context is relevant to answering the user's query.
+
+Respond with one of: relevant, unrelated
+"""
+
+RAG_DOCUMENT_RELEVANCE_RAILS_MAP = {
+    "relevant": "relevant",
+    "unrelated": "unrelated",
+}
+
 
 class EvaluatorSpec:
     """Specification for a single evaluator."""
@@ -223,22 +312,22 @@ def build_basic_rag_suite() -> List[EvaluatorSpec]:
     return [
         EvaluatorSpec(
             name="hallucination",
-            template=HALLUCINATION_PROMPT_TEMPLATE,
-            rails_map=HALLUCINATION_PROMPT_RAILS_MAP,
+            template=RAG_HALLUCINATION_PROMPT_TEMPLATE,
+            rails_map=RAG_HALLUCINATION_RAILS_MAP,
             input_columns=["input", "output", "context"],
             positive_label="factual",
         ),
         EvaluatorSpec(
             name="document_relevance",
-            template=RELEVANCE_PROMPT_TEMPLATE,
-            rails_map=RELEVANCE_PROMPT_RAILS_MAP,
+            template=RAG_DOCUMENT_RELEVANCE_PROMPT_TEMPLATE,
+            rails_map=RAG_DOCUMENT_RELEVANCE_RAILS_MAP,
             input_columns=["input", "context"],
             positive_label="relevant",
         ),
         EvaluatorSpec(
             name="answer_quality",
-            template=QA_PROMPT_TEMPLATE,
-            rails_map=QA_PROMPT_RAILS_MAP,
+            template=RAG_ANSWER_QUALITY_PROMPT_TEMPLATE,
+            rails_map=RAG_ANSWER_QUALITY_RAILS_MAP,
             input_columns=["input", "output", "context"],
             positive_label="correct",
         ),

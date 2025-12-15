@@ -1,0 +1,21 @@
+app_name: rag_assistant_pass
+app_type: rag
+
+adapter:
+  module: "example_team_project.my_app.eval_adapter"
+  function: "run_rag_batch"
+
+dataset:
+  mode: "static"
+  path: "example_team_project/data/eval_dataset_rag_pass.jsonl"
+  size: 5
+
+eval_suite: "basic_rag"
+
+thresholds:
+  hallucination:
+    max_mean: 0.3
+  document_relevance:
+    min_mean: 0.6
+  answer_quality:
+    min_mean: 0.6

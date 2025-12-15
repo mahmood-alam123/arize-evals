@@ -1,0 +1,5 @@
+{"conversation_id": "1", "input": "How do I create an API token?", "business_context": "User needs to authenticate with the API."}
+{"conversation_id": "2", "input": "What are your pricing plans?", "business_context": "User wants to know about pricing tiers."}
+{"conversation_id": "3", "input": "How do I set up webhooks?", "business_context": "User wants real-time notifications."}
+{"conversation_id": "4", "input": "How can I export my data?", "business_context": "User needs to backup their data."}
+{"conversation_id": "5", "input": "What security certifications do you have?", "business_context": "User is evaluating security compliance."}

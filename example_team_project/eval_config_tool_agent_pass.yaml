@@ -1,0 +1,19 @@
+app_name: tool_agent_pass
+app_type: agent
+
+adapter:
+  module: "example_team_project.my_app.eval_adapter"
+  function: "run_tool_agent_batch"
+
+dataset:
+  mode: "static"
+  path: "example_team_project/data/eval_dataset.jsonl"
+  size: 5
+
+eval_suite: "agent"
+
+thresholds:
+  planning_quality:
+    min_mean: 0.7
+  tool_use_appropriateness:
+    min_mean: 0.7

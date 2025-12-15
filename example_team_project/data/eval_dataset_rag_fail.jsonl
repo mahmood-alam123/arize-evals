@@ -1,0 +1,5 @@
+{"conversation_id": "1", "input": "How do I reset my password?", "business_context": "User cannot log in."}
+{"conversation_id": "2", "input": "Can I get a refund?", "business_context": "User wants money back."}
+{"conversation_id": "3", "input": "How do I contact phone support?", "business_context": "User wants to call someone."}
+{"conversation_id": "4", "input": "What languages do you support?", "business_context": "User needs localization info."}
+{"conversation_id": "5", "input": "How do I delete my account?", "business_context": "User wants to close account."}

@@ -1,0 +1,32 @@
+# Agent Configuration
+# This file allows teams to switch between different LLM backends
+
+# Agent Type: "mock" | "openai" | "local"
+# - mock: Returns predefined responses (great for testing/demos)
+# - openai: Uses OpenAI API (requires OPENAI_API_KEY env var)
+# - local: Uses local GGUF model (requires llama-cpp-python)
+agent_type: "openai"
+
+# OpenAI Configuration (only used if agent_type: "openai")
+openai:
+  model: "gpt-4o-deployment"
+  temperature: 0.7
+  max_tokens: 200
+  # API key comes from OPENAI_API_KEY environment variable
+
+# Local LLM Configuration (only used if agent_type: "local")
+local:
+  model_path: "./models/mistral-7b.gguf"
+  n_ctx: 512
+  n_threads: 4
+
+# Evaluation Configuration
+evaluation:
+  dataset_path: "eval_dataset.json"
+  results_dir: "eval_results"
+  metrics:
+    - coherence
+    - relevance
+    - safety
+    - completeness
+    - tone

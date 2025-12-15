@@ -47,9 +47,9 @@ def run_ci_evaluation(config_path: str) -> int:
     Returns:
         Exit code: 0 if all metrics pass thresholds, 1 otherwise
     """
-    print("=" * 50)
-    print("  Company LLM Evaluation")
-    print("=" * 50)
+    print("=" * 70)
+    print("  LLM EVALUATION PIPELINE")
+    print("=" * 70)
     print()
 
     # Step 1: Load configuration
@@ -113,19 +113,22 @@ def run_ci_evaluation(config_path: str) -> int:
     print("  Evaluation complete")
     print()
 
+    # Step 5.5: Print detailed per-conversation results
+    print_detailed_results(eval_results, evaluators)
+
     # Step 6: Compute metrics and check thresholds
-    print("-" * 50)
-    print("  Metric Summary (Mean Scores)")
-    print("-" * 50)
+    print("-" * 70)
+    print("  Metric Summary (Aggregate Scores)")
+    print("-" * 70)
 
     metric_results = compute_metrics(eval_results, evaluators, config.thresholds)
     all_passed = print_metric_summary(metric_results)
     print()
 
     # Step 7: Run axial coding on failures
-    print("-" * 50)
-    print("  Failure Axial Coding")
-    print("-" * 50)
+    print("-" * 70)
+    print("  Failure Analysis (Axial Coding)")
+    print("-" * 70)
 
     # Identify failures (any row with any metric score < 1)
     failure_mask = pd.Series([False] * len(eval_results))
@@ -159,16 +162,16 @@ def run_ci_evaluation(config_path: str) -> int:
                 print(f"  RESPONSE: {str(ex.get('output', ''))[:100]}...")
 
     print()
-    print("-" * 50)
+    print("=" * 70)
 
     # Step 8: Final result
     if all_passed:
         print("  FINAL RESULT: PASS")
-        print("-" * 50)
+        print("=" * 70)
         return 0
     else:
         print("  FINAL RESULT: FAIL")
-        print("-" * 50)
+        print("=" * 70)
         return 1
 
 
@@ -248,7 +251,7 @@ def print_metric_summary(metric_results: List[Dict]) -> bool:
     Returns:
         True if all metrics passed, False otherwise
     """
-    print(f"{'Metric':<25} {'Mean':>8} {'Threshold':>15} {'Status':>10}")
+    print(f"{'Metric':<25} {'Score':>8} {'Threshold':>15} {'Status':>10}")
     print("-" * 60)
 
     all_passed = True
@@ -269,9 +272,9 @@ def print_metric_summary(metric_results: List[Dict]) -> bool:
             display_value = mean
 
         status = "PASS" if metric["passed"] else "FAIL"
-        status_icon = "" if metric["passed"] else ""
+        status_icon = "[OK]" if metric["passed"] else "[X]"
 
-        print(f"{name:<25} {display_value:>8.2f} {threshold_str:>15} {status_icon:>2} {status:>6}")
+        print(f"{name:<25} {display_value:>8.2f} {threshold_str:>15} {status_icon:>5} {status}")
 
         if not metric["passed"]:
             all_passed = False
@@ -280,6 +283,56 @@ def print_metric_summary(metric_results: List[Dict]) -> bool:
     if all_passed:
         print("All metrics satisfy their thresholds.")
     else:
-        print("At least one threshold was violated.")
+        print("One or more thresholds violated.")
 
     return all_passed
+
+
+def print_detailed_results(eval_results: pd.DataFrame, evaluators: list) -> None:
+    """
+    Print detailed per-row evaluation results.
+
+    Args:
+        eval_results: DataFrame with evaluation results
+        evaluators: List of EvaluatorSpec objects
+    """
+    print("-" * 70)
+    print("  Detailed Results (Per Conversation)")
+    print("-" * 70)
+
+    for idx, row in eval_results.iterrows():
+        # Determine overall pass/fail for this row
+        row_passed = True
+        for evaluator in evaluators:
+            score_col = f"{evaluator.name}_score"
+            if score_col in eval_results.columns:
+                if row[score_col] < 1.0:
+                    row_passed = False
+                    break
+
+        status = "[OK] PASS" if row_passed else "[X] FAIL"
+        conv_id = row.get("conversation_id", idx)
+
+        print(f"\n  Run {idx + 1} ({conv_id}): {status}")
+
+        # Show input/output
+        input_text = str(row.get("input", ""))[:80]
+        output_text = str(row.get("output", ""))[:80]
+        print(f"    Input:  {input_text}{'...' if len(str(row.get('input', ''))) > 80 else ''}")
+        print(f"    Output: {output_text}{'...' if len(str(row.get('output', ''))) > 80 else ''}")
+
+        # Show per-metric results
+        for evaluator in evaluators:
+            score_col = f"{evaluator.name}_score"
+            label_col = f"{evaluator.name}_label"
+            explanation_col = f"{evaluator.name}_explanation"
+
+            if score_col in eval_results.columns:
+                score = row[score_col]
+                label = row.get(label_col, "N/A")
+                explanation = str(row.get(explanation_col, ""))[:60]
+
+                metric_status = "[OK]" if score >= 1.0 else "[X]"
+                print(f"      {evaluator.name:<20}: {score:.2f} {metric_status} ({label}) {explanation}{'...' if len(str(row.get(explanation_col, ''))) > 60 else ''}")
+
+    print()

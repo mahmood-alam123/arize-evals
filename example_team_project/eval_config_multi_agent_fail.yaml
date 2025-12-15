@@ -1,0 +1,19 @@
+app_name: multi_agent_fail
+app_type: multi_agent
+
+adapter:
+  module: "example_team_project.my_app.eval_adapter"
+  function: "run_multi_agent_batch_bad"
+
+dataset:
+  mode: "static"
+  path: "example_team_project/data/eval_dataset.jsonl"
+  size: 5
+
+eval_suite: "multi_agent"
+
+thresholds:
+  overall_answer_quality:
+    min_mean: 0.7
+  planning_quality:
+    min_mean: 0.7
