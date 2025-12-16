@@ -167,6 +167,70 @@ helpfulness_quality           0.92         >= 0.70  [OK] PASS
 ======================================================================
 ```
 
+### When Things Go Wrong
+
+When evaluations fail, you get actionable diagnostics:
+
+```
+======================================================================
+  LLM EVALUATION PIPELINE
+======================================================================
+
+App Name: customer_support_bot
+Eval Suite: basic_rag
+
+Running evaluation suite...
+  Evaluators: hallucination, document_relevance, answer_quality
+
+----------------------------------------------------------------------
+  Metric Summary
+----------------------------------------------------------------------
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+hallucination                 0.35         <= 0.10  [!!] FAIL
+document_relevance            0.78         >= 0.80  [!!] FAIL
+answer_quality                0.65         >= 0.70  [!!] FAIL
+
+----------------------------------------------------------------------
+  Failure Analysis
+----------------------------------------------------------------------
+Failure type distribution:
+  - hallucination: 7 (50%)
+  - irrelevant_retrieval: 4 (29%)
+  - incomplete_answer: 3 (21%)
+
+Example failures:
+
+[hallucination] Row 12:
+  INPUT: What is the return window for electronics?
+  RETRIEVED: "General merchandise can be returned within 30 days..."
+  OUTPUT: "Electronics have a 90-day return window with full refund."
+  ISSUE: Response contains information not present in retrieved context.
+
+[irrelevant_retrieval] Row 8:
+  INPUT: How do I cancel my subscription?
+  RETRIEVED: "Shipping rates vary by destination..." (relevance: 0.12)
+  ISSUE: Retrieved documents don't address the user's question.
+
+[incomplete_answer] Row 15:
+  INPUT: What payment methods do you accept?
+  OUTPUT: "We accept credit cards."
+  ISSUE: Response missing debit, PayPal, and Apple Pay from context.
+
+----------------------------------------------------------------------
+  Recommendations
+----------------------------------------------------------------------
+1. HALLUCINATION: Review prompt to emphasize grounding in retrieved context
+2. RETRIEVAL: Check embedding model or chunk size for relevance issues
+3. COMPLETENESS: Consider adding instruction to include all relevant details
+
+======================================================================
+  FINAL RESULT: FAIL (3 metrics below threshold)
+======================================================================
+```
+
+This detailed output helps you quickly identify and fix the root cause.
+
 ---
 
 ## Configuration
@@ -330,11 +394,31 @@ company-eval --help
 
 ## Roadmap
 
-- [ ] Dashboard for tracking quality trends over time
-- [ ] Production traffic sampling (`company-eval sample-prod`)
-- [ ] Custom evaluator templates
-- [ ] Slack/Teams notifications on failures
-- [ ] Cost tracking per evaluation run
+### Near-Term
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Quality Dashboard** | Web UI for tracking evaluation trends over time, comparing branches, and drilling into failures | In Progress |
+| **Slack/Teams Notifications** | Alert channels when CI evals fail with summary and links to details | Planned |
+| **Custom Evaluator Templates** | Define your own LLM-as-judge evaluators with custom prompts and rubrics | Planned |
+| **Cost Tracking** | Track OpenAI/Azure spend per evaluation run with budget alerts | Planned |
+
+### Mid-Term
+
+| Feature | Description |
+|---------|-------------|
+| **Production Traffic Sampling** | `company-eval sample-prod` to pull real user interactions for evaluation |
+| **A/B Experiment Analysis** | Compare evaluation metrics between model versions or prompt variants |
+| **MCP Server** | Model Context Protocol server enabling AI assistants to run evals, check results, and manage datasets conversationally |
+
+### Long-Term Vision
+
+| Feature | Description |
+|---------|-------------|
+| **Auto-Generated Test Cases** | Automatically generate adversarial and edge-case inputs based on failure patterns |
+| **Human-in-the-Loop Calibration** | UI for humans to label samples and calibrate LLM judges against human judgment |
+| **Continuous Production Monitoring** | Always-on sampling and evaluation of production traffic with anomaly detection |
+| **Multi-Model Comparison** | Run same inputs through multiple models and compare quality/cost tradeoffs |
 
 ---
 
@@ -362,7 +446,5 @@ This is an internal tool. To add new evaluation suites or features:
 Internal use only.
 
 ---
-
-**Questions?** Reach out to the AI Platform team.
 
 **Ready to start?** Run `company-eval init my_project` and ship with confidence.
