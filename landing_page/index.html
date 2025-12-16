@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Company Eval Framework — LLM Quality Gates</title>
+  <meta name="description" content="A standardized framework to ship LLM features with data-driven confidence." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Using system font stack for speed + consistency; keep Google Fonts optional -->
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Company Eval Framework home">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 4 55 17v30L32 60 9 47V17L32 4Z" stroke="currentColor" stroke-width="3" opacity=".25"/>
+          <path d="M32 8 51 19v26L32 56 13 45V19L32 8Z" fill="rgba(30,99,255,.10)" stroke="rgba(30,99,255,.55)" stroke-width="2"/>
+          <path d="M24 20h16l-2 10c-1 5-3 10-6 14-3-4-5-9-6-14l-2-10Z" fill="rgba(30,99,255,.25)" stroke="rgba(30,99,255,.55)" stroke-width="2" />
+          <path d="M29 28h6" stroke="rgba(30,99,255,.75)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M32 26v6" stroke="rgba(30,99,255,.75)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Company Eval Framework</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#problem">Why</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#suites">Eval suites</a>
+        <a href="#metrics">Quality gates</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn mobile-only" href="#suites">Explore</a>
+        <a class="btn" href="#how-it-works">View workflow</a>
+        <a class="btn primary" href="#cta">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="kicker"><span class="dot"></span> Standardize how you ship LLM features</div>
+          <h1>Moving Beyond <span style="white-space:nowrap;">“Vibes”</span> for LLM Quality</h1>
+          <p class="lede">Introducing a standardized framework to ship AI features with data‑driven confidence — with CI/CD-style quality gates, clear pass/fail signals, and interpretable failure analysis.</p>
+
+          <div class="hero-cta">
+            <a class="btn primary" href="#cta">Run a CI eval</a>
+            <a class="btn" href="#problem">Why this exists</a>
+          </div>
+          <div class="subnote">Built on the open-source Phoenix Evals library. Integrates with your existing pipelines.</div>
+        </div>
+
+        <aside class="card hero-card">
+          <div class="mini">
+            <div class="pill">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 7h10v4c0 3-2 6-5 9-3-3-5-6-5-9V7Z" stroke="currentColor" stroke-width="2" opacity=".9"/>
+                <path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2" opacity=".6"/>
+              </svg>
+              CI quality gate
+            </div>
+            <div class="mute" style="font-size:14px; line-height:1.45;">
+              Define pass/fail thresholds once, then block merges automatically if quality drops.
+            </div>
+          </div>
+
+          <div class="hero-metrics">
+            <div class="metric">
+              <b>Objective scores</b>
+              <span>User frustration, toxicity, hallucination, answer quality…</span>
+            </div>
+            <div class="metric">
+              <b>Failure insights</b>
+              <span>Axial coding clusters why outputs fail — not just that they fail.</span>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;" class="media">
+            <img src="./assets/cli_pipeline.png" alt="CLI evaluation pipeline screenshot" loading="lazy">
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="section" id="problem">
+      <div class="container">
+        <h2>It started with a high-stakes challenge</h2>
+        <p class="lead">In our work with the State of Oregon, we saw what happens when critical knowledge is locked in complex artifacts (like hundreds of Visio network diagrams): search is slow, interpretation is risky, and changes can trigger outages.</p>
+
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="split">
+              <div class="box">
+                <div class="subhead">The problem</div>
+                <ul class="list">
+                  <li><span class="badge x" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </span> 400+ complex Visio network diagrams created siloed knowledge and slowed searches.</li>
+                  <li><span class="badge x" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </span> Reasoning about dependencies during change windows increased operational risk.</li>
+                </ul>
+              </div>
+              <div class="box">
+                <div class="subhead">The impact</div>
+                <ul class="list">
+                  <li><span class="badge x" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </span> Tracing dependencies was difficult and time-consuming.</li>
+                  <li><span class="badge x" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </span> Audits and handoffs took far too long — delaying work and increasing exposure.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="media">
+            <img src="./assets/oregon_building.png" alt="City building photo" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NETWORKSEARCH + WHY EVALS -->
+    <section class="section" id="networksearch">
+      <div class="container">
+        <h2>From diagrams to searchable knowledge</h2>
+        <p class="lead">We built NetworkSearch to query, interpret, and generate answers from network diagrams — and immediately hit the next question: how do you ship a complex AI system like this and know it’s actually good?</p>
+
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="feature-grid">
+              <div class="card feature">
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M10 4h10v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M20 4 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 10v10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+                  </svg>
+                </div>
+                <h3>Query</h3>
+                <p>Find the right diagram using natural language for devices, subnets, VLANs, and technologies.</p>
+              </div>
+
+              <div class="card feature">
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 12a3 3 0 1 0 0 .01" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+                  </svg>
+                </div>
+                <h3>Interpret</h3>
+                <p>Understand shapes, connections, and architecture using vision-based analysis.</p>
+              </div>
+
+              <div class="card feature">
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 8h10M7 12h6M7 16h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 8l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+                  </svg>
+                </div>
+                <h3>Generate</h3>
+                <p>Create one-click summaries and security reports — turning hours of work into seconds.</p>
+              </div>
+            </div>
+
+            <div class="card" style="padding:18px; margin-top:14px;">
+              <div class="mute" style="font-weight:800; color:var(--text); margin-bottom:6px;">The hard questions every LLM team asks</div>
+              <ul class="list">
+                <li><span class="badge" aria-hidden="true">?</span> Did my prompt change break something?</li>
+                <li><span class="badge" aria-hidden="true">?</span> Is this new model <em>actually</em> better?</li>
+                <li><span class="badge" aria-hidden="true">?</span> How do I systematically test my RAG pipeline?</li>
+                <li><span class="badge" aria-hidden="true">?</span> Are we just evaluating based on “vibes”?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="media">
+            <img src="./assets/networksearch_login.png" alt="NetworkSearch login UI mock" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEFORE/AFTER -->
+    <section class="section" id="standard">
+      <div class="container">
+        <h2>A new standard for LLM development</h2>
+        <p class="lead">Replace manual, ad-hoc testing with quantified evaluation and automated quality gates — so regressions are caught before users feel them.</p>
+
+        <div class="split">
+          <div class="card panel">
+            <div class="subhead">Before (the old way)</div>
+            <ul class="list">
+              <li><span class="badge x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span> “I think the new prompt is better.”</li>
+              <li><span class="badge x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span> Manual, ad-hoc testing before release.</li>
+              <li><span class="badge x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span> Each team invents their own evaluation scripts.</li>
+              <li><span class="badge x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span> Find regressions after users complain.</li>
+              <li><span class="badge x" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span> Ship and hope.</li>
+            </ul>
+          </div>
+
+          <div class="card panel">
+            <div class="subhead">After (with the eval framework)</div>
+            <ul class="list">
+              <li><span class="badge ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7 10 17l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span> Quantified, objective quality scores.</li>
+              <li><span class="badge ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7 10 17l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span> CI/CD catches regressions on every commit.</li>
+              <li><span class="badge ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7 10 17l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span> A standardized, shared tool across the company.</li>
+              <li><span class="badge ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7 10 17l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span> Catch quality issues before they reach production.</li>
+              <li><span class="badge ok" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7 10 17l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span> Automated quality gates.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <h2>How it works</h2>
+        <p class="lead">Your app stays yours. The framework provides a thin adapter interface and a repeatable pipeline: dataset → evaluators → thresholds → CI pass/fail.</p>
+
+        <div class="grid-2">
+          <div class="card panel">
+            <ol class="list" style="list-style: decimal; padding-left: 18px; margin: 0;">
+              <li><span class="mute"><b>Framework agnostic.</b> Works with any model, library, or API.</span></li>
+              <li><span class="mute"><b>Adapter bridge.</b> A simple Python function lets the framework call your app with test data.</span></li>
+              <li><span class="mute"><b>LLM-as-judge evaluations.</b> Scores responses against your metrics using Phoenix Evals.</span></li>
+              <li><span class="mute"><b>CI/CD control.</b> The final pass/fail status can block merges automatically.</span></li>
+            </ol>
+          </div>
+
+          <div class="media">
+            <img src="./assets/how_it_works_diagram.png" alt="How it works diagram" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUITES -->
+    <section class="section" id="suites">
+      <div class="container">
+        <h2>Evaluate any LLM application</h2>
+        <p class="lead">Pre-built evaluation suites cover the most common LLM patterns — from simple chatbots to complex agents.</p>
+
+        <table class="table" role="table" aria-label="Evaluation suites">
+          <thead>
+            <tr>
+              <th>App type</th>
+              <th>What it evaluates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="row-title">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v10H7l-3 3V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                  Simple Chat
+                </div>
+              </td>
+              <td>Response quality, user frustration, toxicity</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="row-title">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M10 4h10v10H10V4Z" stroke="currentColor" stroke-width="2"/><path d="M4 10h10v10H4V10Z" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
+                  RAG
+                </div>
+              </td>
+              <td>Hallucination, document relevance, answer accuracy</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="row-title">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4 12H2M22 12h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 17l-2 2M19 5l-2 2M7 7 5 5M19 19l-2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" stroke="currentColor" stroke-width="2"/></svg>
+                  Tool‑Using Agents
+                </div>
+              </td>
+              <td>Planning quality, appropriate tool selection</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="row-title">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M7 7a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M17 7a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M12 17a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M9.5 8.5 11 15M14.5 8.5 13 15" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
+                  Multi‑Agent Systems
+                </div>
+              </td>
+              <td>Coordination, overall output quality</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section class="section" id="metrics">
+      <div class="container">
+        <h2>Quality gates you can trust</h2>
+        <p class="lead">Make “good” unambiguous. Set thresholds in config, then get a clear PASS/FAIL signal for every run.</p>
+
+        <div class="feature-grid">
+          <div class="card feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5 20V9m7 11V4m7 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Hallucination</h3>
+            <p>Does the response contain information not present in the retrieved documents?</p>
+          </div>
+          <div class="card feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z" stroke="currentColor" stroke-width="2"/><path d="M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg>
+            </div>
+            <h3>Document relevance</h3>
+            <p>Are the retrieved documents actually relevant to the user’s query?</p>
+          </div>
+          <div class="card feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M7 12l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 4h12v16H6V4Z" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
+            </div>
+            <h3>Answer quality</h3>
+            <p>Is the final answer correct and well‑supported by the provided context?</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="cta">
+      <div class="container">
+        <div class="cta-card">
+          <div>
+            <h2>Merge with confidence</h2>
+            <p>Adopt a shared standard for evaluating LLM applications, catch regressions early, and move from guesswork to measurable quality.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+            <a class="btn" href="#top">Back to top</a>
+            <a class="btn primary" href="#" onclick="alert('Wire this to your repo docs / onboarding path.'); return false;">Install & run</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div>© <span id="year"></span> Company Eval Framework • Built for consistent LLM quality gates.</div>
+      <div class="mute" style="margin-top:6px;">This homepage content is derived from the attached “LLM Quality Gates: A Standard for Confidence” deck.</div>
+    </div>
+  </footer>
+
+  <script src="./main.js"></script>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
