@@ -30,6 +30,8 @@
         <a href="#how-it-works">How it works</a>
         <a href="#suites">Eval suites</a>
         <a href="#metrics">Quality gates</a>
+        <a href="#three-commands">CLI</a>
+        <a href="#roadmap">Roadmap</a>
       </nav>
 
       <div class="actions">
@@ -73,7 +75,7 @@
           <div class="hero-metrics">
             <div class="metric">
               <b>Objective scores</b>
-              <span>User frustration, toxicity, hallucination, answer quality…</span>
+              <span>User frustration, toxicity, hallucination & answer quality</span>
             </div>
             <div class="metric">
               <b>Failure insights</b>
@@ -266,100 +268,186 @@
       </div>
     </section>
 
-    <!-- SUITES -->
-    <section class="section" id="suites">
+    <!-- 3 COMMANDS (CLI QUICK START) -->
+    <section class="section" id="three-commands">
       <div class="container">
-        <h2>Evaluate any LLM application</h2>
-        <p class="lead">Pre-built evaluation suites cover the most common LLM patterns — from simple chatbots to complex agents.</p>
+        <h2>Go from zero to automated quality gates in 3 commands</h2>
+        <p class="lead">Install once, then wire the framework into your CI to give every LLM change a safety net.</p>
 
-        <table class="table" role="table" aria-label="Evaluation suites">
-          <thead>
-            <tr>
-              <th>App type</th>
-              <th>What it evaluates</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="row-title">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v10H7l-3 3V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-                  Simple Chat
-                </div>
-              </td>
-              <td>Response quality, user frustration, toxicity</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="row-title">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M10 4h10v10H10V4Z" stroke="currentColor" stroke-width="2"/><path d="M4 10h10v10H4V10Z" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
-                  RAG
-                </div>
-              </td>
-              <td>Hallucination, document relevance, answer accuracy</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="row-title">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4 12H2M22 12h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 17l-2 2M19 5l-2 2M7 7 5 5M19 19l-2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" stroke="currentColor" stroke-width="2"/></svg>
-                  Tool‑Using Agents
-                </div>
-              </td>
-              <td>Planning quality, appropriate tool selection</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="row-title">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M7 7a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M17 7a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M12 17a3 3 0 1 0 0 .01Z" stroke="currentColor" stroke-width="2"/><path d="M9.5 8.5 11 15M14.5 8.5 13 15" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
-                  Multi‑Agent Systems
-                </div>
-              </td>
-              <td>Coordination, overall output quality</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- METRICS -->
-    <section class="section" id="metrics">
-      <div class="container">
-        <h2>Quality gates you can trust</h2>
-        <p class="lead">Make “good” unambiguous. Set thresholds in config, then get a clear PASS/FAIL signal for every run.</p>
-
-        <div class="feature-grid">
-          <div class="card feature">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M5 20V9m7 11V4m7 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="card panel cli-steps">
+          <div class="cli-step">
+            <div class="cli-step-number">1</div>
+            <div class="cli-step-body">
+              <div class="cli-callout"># 1. Initialize your project</div>
+              <code>> company-eval init my_project</code>
             </div>
-            <h3>Hallucination</h3>
-            <p>Does the response contain information not present in the retrieved documents?</p>
           </div>
-          <div class="card feature">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z" stroke="currentColor" stroke-width="2"/><path d="M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg>
+
+          <div class="cli-step">
+            <div class="cli-step-number">2</div>
+            <div class="cli-step-body">
+              <div class="cli-callout"># 2. Generate a baseline test dataset</div>
+              <code>> company-eval generate-dataset --app-type rag --output data/tests.jsonl</code>
             </div>
-            <h3>Document relevance</h3>
-            <p>Are the retrieved documents actually relevant to the user’s query?</p>
           </div>
-          <div class="card feature">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M7 12l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 4h12v16H6V4Z" stroke="currentColor" stroke-width="2" opacity=".8"/></svg>
+
+          <div class="cli-step">
+            <div class="cli-step-number">3</div>
+            <div class="cli-step-body">
+              <div class="cli-callout"># 3. Run evaluations locally or in CI</div>
+              <code>> company-eval ci-run --config eval_config.yaml</code>
             </div>
-            <h3>Answer quality</h3>
-            <p>Is the final answer correct and well‑supported by the provided context?</p>
+          </div>
+
+          <div class="cli-summary">
+            <span>That’s it. Your LLM application now has a safety net.</span>
+            <span class="cli-check" aria-hidden="true">✔</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA -->
+    <!-- CONFIG DETAIL -->
+    <section class="section" id="config">
+      <div class="container">
+        <h2>Fine-grained control through a simple config file</h2>
+        <p class="lead">Describe your app, dataset, eval suite, and thresholds in one YAML file — no custom infra required.</p>
+
+        <div class="grid-2">
+          <div class="card panel">
+            <pre class="config-snippet"><code># eval_config.yaml
+app_name: my_chatbot
+app_type: simple_chat
+
+adapter:
+  module: "my_evals.my_adapter"
+  function: "run_batch"
+
+dataset:
+  mode: "static"
+  path: "my_evals/data/eval_dataset.jsonl"
+
+eval_suite: "basic_chat"
+
+thresholds:
+  user_frustration:
+    max_mean: 0.3
+  helpfulness_quality:
+    min_mean: 0.7</code></pre>
+          </div>
+
+          <div class="card panel config-explainer">
+            <ul class="list">
+              <li><span class="badge" aria-hidden="true">1</span> Tell the framework what kind of app you have.</li>
+              <li><span class="badge" aria-hidden="true">2</span> Point to the Python function that runs your app.</li>
+              <li><span class="badge" aria-hidden="true">3</span> Specify your test data: static regression set or synthetic cases.</li>
+              <li><span class="badge" aria-hidden="true">4</span> Choose a pre-built eval suite (e.g., <code>basic_rag</code>) or define your own.</li>
+              <li><span class="badge" aria-hidden="true">5</span> Define acceptance criteria — CI fails if these thresholds aren’t met.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GITHUB WORKFLOW -->
+    <section class="section" id="github">
+      <div class="container">
+        <h2>Natively integrated with your GitHub workflow</h2>
+        <p class="lead">Add a single workflow file and turn every PR into a quality gate for your LLM stack.</p>
+
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="subhead">Automatic PR checks</div>
+            <p class="lead" style="font-size:14px; max-width:40rem;">A GitHub Actions workflow is included when you run <code>company-eval init</code>. PRs are automatically blocked if quality drops below your thresholds.</p>
+            <pre class="config-snippet"><code># .github/workflows/eval.yml
+- name: Run LLM Evaluation
+  run: company-eval ci-run --config eval_config.yaml</code></pre>
+            <div class="github-gate">
+              <span class="github-bar github-pass" aria-hidden="true"></span>
+              <span class="github-bar github-fail" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="card panel">
+            <div class="subhead">Flexible triggers for deeper analysis</div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Trigger</th>
+                  <th>Mode</th>
+                  <th>Use case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Push / PR</td>
+                  <td>Static</td>
+                  <td>Fast regression testing</td>
+                </tr>
+                <tr>
+                  <td>Manual</td>
+                  <td>Synthetic</td>
+                  <td>Broader coverage with fresh cases</td>
+                </tr>
+                <tr>
+                  <td>Manual</td>
+                  <td>Both</td>
+                  <td>Full validation before a release</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section class="section" id="roadmap">
+      <div class="container">
+        <h2>What’s next: the roadmap</h2>
+        <p class="lead">We’re committed to making this the central tool for AI quality at the company.</p>
+
+        <div class="grid-2">
+          <div class="card panel roadmap-list">
+            <ul class="list">
+              <li>
+                <span class="roadmap-icon" aria-hidden="true">📈</span>
+                Dashboard for tracking quality trends over time.
+              </li>
+              <li>
+                <span class="roadmap-icon" aria-hidden="true">🏭</span>
+                Production traffic sampling (<code>company-eval sample-prod</code>).
+              </li>
+              <li>
+                <span class="roadmap-icon" aria-hidden="true">🧩</span>
+                Custom evaluator templates.
+              </li>
+              <li>
+                <span class="roadmap-icon" aria-hidden="true">🔔</span>
+                Slack / Teams notifications on failures.
+              </li>
+              <li>
+                <span class="roadmap-icon" aria-hidden="true">$</span>
+                Cost tracking per evaluation run.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card panel">
+            <h3>Built for teams, not just individuals</h3>
+            <p class="lead" style="font-size:14px;">Have an idea or a need? Reach out to the AI Platform team or submit a PR. This is an internal tool built for all of us.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
     <section class="cta" id="cta">
       <div class="container">
         <div class="cta-card">
           <div>
-            <h2>Merge with confidence</h2>
-            <p>Adopt a shared standard for evaluating LLM applications, catch regressions early, and move from guesswork to measurable quality.</p>
+            <h2>Ship with confidence, starting today</h2>
+            <p>Initialize a new eval project, connect your app adapter, and turn on CI gates — all in a single afternoon.</p>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
             <a class="btn" href="#top">Back to top</a>
