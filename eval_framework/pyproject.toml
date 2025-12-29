@@ -30,6 +30,13 @@ dependencies = [
     "tqdm",
 ]
 
+[project.optional-dependencies]
+dashboard = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "sqlalchemy>=2.0.0",
+]
+
 [project.scripts]
 company-eval = "company_eval_framework.cli:main"
 

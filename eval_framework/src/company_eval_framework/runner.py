@@ -13,10 +13,14 @@ This module orchestrates the full evaluation flow:
 
 import importlib
 import os
+import subprocess
 import sys
 import tempfile
+import time
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -27,7 +31,60 @@ from .evaluators import build_eval_suite, get_llm_judge, run_evaluations_sync
 from .utils import read_jsonl, write_jsonl
 
 
-def run_ci_evaluation(config_path: str) -> int:
+@dataclass
+class EvaluationResults:
+    """Structured results from an evaluation run."""
+
+    passed: bool
+    app_name: str
+    app_type: str
+    eval_suite: str
+    config_path: str
+    dataset_size: int
+    started_at: datetime
+    finished_at: datetime
+    duration_seconds: float
+    git_branch: Optional[str] = None
+    git_commit: Optional[str] = None
+    metrics: List[Dict[str, Any]] = field(default_factory=list)
+    test_cases: List[Dict[str, Any]] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for API submission."""
+        return {
+            "passed": self.passed,
+            "app_name": self.app_name,
+            "app_type": self.app_type,
+            "eval_suite": self.eval_suite,
+            "config_path": self.config_path,
+            "dataset_size": self.dataset_size,
+            "started_at": self.started_at.isoformat(),
+            "finished_at": self.finished_at.isoformat(),
+            "duration_seconds": self.duration_seconds,
+            "git_branch": self.git_branch,
+            "git_commit": self.git_commit,
+            "metrics": self.metrics,
+            "test_cases": self.test_cases,
+        }
+
+
+def _get_git_info() -> Tuple[Optional[str], Optional[str]]:
+    """Get current git branch and commit hash."""
+    try:
+        branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+        return branch, commit
+    except Exception:
+        return None, None
+
+
+def run_ci_evaluation(config_path: str, return_results: bool = False) -> int | EvaluationResults:
     """
     Main entry point for CI evaluation.
 
@@ -43,10 +100,14 @@ def run_ci_evaluation(config_path: str) -> int:
 
     Args:
         config_path: Path to the YAML configuration file
+        return_results: If True, return EvaluationResults instead of exit code
 
     Returns:
-        Exit code: 0 if all metrics pass thresholds, 1 otherwise
+        Exit code (0 = pass, 1 = fail) or EvaluationResults if return_results=True
     """
+    started_at = datetime.utcnow()
+    git_branch, git_commit = _get_git_info()
+
     print("=" * 70)
     print("  LLM EVALUATION PIPELINE")
     print("=" * 70)
@@ -138,6 +199,7 @@ def run_ci_evaluation(config_path: str) -> int:
             failure_mask |= (eval_results[score_col] < 1.0)
 
     failures_df = eval_results[failure_mask]
+    coded_failures = None  # Initialize for later use
 
     if failures_df.empty:
         print("No failures detected - axial coding skipped.")
@@ -165,14 +227,104 @@ def run_ci_evaluation(config_path: str) -> int:
     print("=" * 70)
 
     # Step 8: Final result
+    finished_at = datetime.utcnow()
+    duration_seconds = (finished_at - started_at).total_seconds()
+
     if all_passed:
         print("  FINAL RESULT: PASS")
         print("=" * 70)
-        return 0
+        exit_code = 0
     else:
         print("  FINAL RESULT: FAIL")
         print("=" * 70)
-        return 1
+        exit_code = 1
+
+    # Return structured results if requested
+    if return_results:
+        # Build test case results
+        test_cases_data = _build_test_case_results(eval_results, evaluators, coded_failures)
+
+        return EvaluationResults(
+            passed=all_passed,
+            app_name=config.app_name,
+            app_type=config.app_type,
+            eval_suite=config.eval_suite,
+            config_path=config_path,
+            dataset_size=len(eval_results),
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_seconds=duration_seconds,
+            git_branch=git_branch,
+            git_commit=git_commit,
+            metrics=[
+                {
+                    "name": m["name"],
+                    "mean_score": m["mean"],
+                    "failure_rate": m["failure_rate"],
+                    "threshold_type": m["threshold_type"],
+                    "threshold_value": m["threshold_value"],
+                    "passed": m["passed"],
+                }
+                for m in metric_results
+            ],
+            test_cases=test_cases_data,
+        )
+
+    return exit_code
+
+
+def _build_test_case_results(
+    eval_results: pd.DataFrame,
+    evaluators: list,
+    coded_failures: Optional[pd.DataFrame] = None,
+) -> List[Dict[str, Any]]:
+    """Build test case result data for structured output."""
+    test_cases = []
+
+    for idx, row in eval_results.iterrows():
+        conv_id = str(row.get("conversation_id", idx))
+
+        # Build scores for each metric
+        scores = []
+        has_failure = False
+        for evaluator in evaluators:
+            score_col = f"{evaluator.name}_score"
+            label_col = f"{evaluator.name}_label"
+            explanation_col = f"{evaluator.name}_explanation"
+
+            if score_col in eval_results.columns:
+                score = float(row[score_col])
+                if score < 1.0:
+                    has_failure = True
+                scores.append({
+                    "metric_name": evaluator.name,
+                    "score": score,
+                    "label": str(row.get(label_col, "")),
+                    "explanation": str(row.get(explanation_col, "")),
+                })
+
+        # Get failure info if available
+        failure = None
+        if has_failure and coded_failures is not None and not coded_failures.empty:
+            failure_row = coded_failures[
+                coded_failures.get("conversation_id", pd.Series()) == conv_id
+            ]
+            if not failure_row.empty:
+                failure = {
+                    "failure_type": str(failure_row.iloc[0].get("failure_type", "unknown")),
+                    "explanation": str(failure_row.iloc[0].get("failure_type_explanation", "")),
+                }
+
+        test_cases.append({
+            "conversation_id": conv_id,
+            "input": str(row.get("input", "")),
+            "output": str(row.get("output", "")),
+            "context": str(row.get("context", "")) if row.get("context") else None,
+            "scores": scores,
+            "failure": failure,
+        })
+
+    return test_cases
 
 
 def compute_metrics(

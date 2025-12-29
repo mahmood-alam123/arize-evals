@@ -6,10 +6,11 @@ Provides the `company-eval` CLI with subcommands for running evaluations.
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
-from .runner import run_ci_evaluation
+from .runner import run_ci_evaluation, EvaluationResults
 
 
 def cmd_generate_dataset(args: argparse.Namespace) -> int:
@@ -375,7 +376,45 @@ def cmd_ci_run(args: argparse.Namespace) -> int:
     Returns:
         Exit code from run_ci_evaluation (0 = pass, 1 = fail)
     """
-    return run_ci_evaluation(args.config)
+    # Get dashboard URL from args or environment
+    report_to = getattr(args, "report_to", None) or os.environ.get("EVAL_DASHBOARD_URL")
+
+    if report_to:
+        # Run with result capture and report to dashboard
+        result = run_ci_evaluation(args.config, return_results=True)
+        if isinstance(result, EvaluationResults):
+            _report_to_dashboard(report_to, result)
+            return 0 if result.passed else 1
+        return result
+    else:
+        return run_ci_evaluation(args.config)
+
+
+def _report_to_dashboard(dashboard_url: str, results: EvaluationResults) -> None:
+    """Report evaluation results to the dashboard API."""
+    import urllib.request
+    import urllib.error
+
+    url = f"{dashboard_url.rstrip('/')}/api/runs"
+    data = json.dumps(results.to_dict()).encode("utf-8")
+
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as response:
+            response_data = json.loads(response.read().decode())
+            print()
+            print(f"Results reported to dashboard: {dashboard_url}")
+            print(f"Run ID: {response_data.get('id', 'unknown')}")
+    except urllib.error.URLError as e:
+        print(f"\nWarning: Failed to report to dashboard: {e}")
+    except Exception as e:
+        print(f"\nWarning: Failed to report to dashboard: {e}")
 
 
 def cmd_sample_prod(args: argparse.Namespace) -> int:
@@ -442,6 +481,11 @@ def create_parser() -> argparse.ArgumentParser:
         required=True,
         metavar="PATH",
         help="Path to the evaluation config YAML file",
+    )
+    ci_run_parser.add_argument(
+        "--report-to",
+        metavar="URL",
+        help="Dashboard URL to report results to (e.g., http://localhost:8080)",
     )
     ci_run_parser.set_defaults(func=cmd_ci_run)
 
@@ -539,7 +583,78 @@ def create_parser() -> argparse.ArgumentParser:
     )
     gen_parser.set_defaults(func=cmd_generate_dataset)
 
+    # dashboard subcommand
+    dashboard_parser = subparsers.add_parser(
+        "dashboard",
+        help="Start the Quality Dashboard web server",
+        description=(
+            "Start the Quality Dashboard server for viewing evaluation results. "
+            "Results from ci-run --report-to will be stored and displayed here."
+        ),
+    )
+    dashboard_parser.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=8080,
+        help="Port to listen on (default: 8080)",
+    )
+    dashboard_parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind to (default: 0.0.0.0)",
+    )
+    dashboard_parser.add_argument(
+        "--db",
+        metavar="PATH",
+        default="eval_results.db",
+        help="Path to SQLite database (default: eval_results.db)",
+    )
+    dashboard_parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable auto-reload for development",
+    )
+    dashboard_parser.set_defaults(func=cmd_dashboard)
+
     return parser
+
+
+def cmd_dashboard(args: argparse.Namespace) -> int:
+    """
+    Start the Quality Dashboard server.
+
+    Args:
+        args: Parsed command-line arguments
+
+    Returns:
+        Exit code 0
+    """
+    try:
+        from .dashboard import main as dashboard_main
+    except ImportError as e:
+        print("Error: Dashboard dependencies not installed.")
+        print("Install with: pip install company-eval-framework[dashboard]")
+        print(f"Details: {e}")
+        return 1
+
+    print("=" * 60)
+    print("  Quality Dashboard")
+    print("=" * 60)
+    print()
+    print(f"Starting server on http://{args.host}:{args.port}")
+    print(f"Database: {args.db}")
+    print()
+    print("Press Ctrl+C to stop")
+    print()
+
+    dashboard_main(
+        host=args.host,
+        port=args.port,
+        db_path=args.db,
+        reload=args.reload,
+    )
+    return 0
 
 
 def main() -> None:
