@@ -40,25 +40,36 @@ class DatasetConfig(BaseModel):
     """
     Configuration for the evaluation dataset.
 
-    Supports two modes:
+    Supports three modes:
     - static: Load from a JSONL/CSV file
     - synthetic: Generate examples using an LLM
+    - dashboard: Fetch from the Quality Dashboard by dataset name
 
     Attributes:
-        mode: Either "static" (load from file) or "synthetic" (generate with LLM)
+        mode: Dataset source mode ("static", "synthetic", or "dashboard")
         path: File path for static datasets (JSONL or CSV)
+        dataset_name: Name of the dataset in the Quality Dashboard (for dashboard mode)
+        dashboard_url: URL of the Quality Dashboard API (defaults to http://localhost:8000)
         num_examples: Number of examples to generate in synthetic mode
         generation_model: LLM model for synthetic generation (e.g., "gpt-4o-mini")
         description: Description of the app/dataset for synthetic generation context
         prompt_files: Optional list of prompt files to use as context for generation
     """
-    mode: Literal["static", "synthetic"] = Field(
+    mode: Literal["static", "synthetic", "dashboard"] = Field(
         ...,
         description="Dataset source mode"
     )
     path: Optional[str] = Field(
         default=None,
         description="Path to static dataset file (JSONL or CSV)"
+    )
+    dataset_name: Optional[str] = Field(
+        default=None,
+        description="Name of the dataset in the Quality Dashboard (for dashboard mode)"
+    )
+    dashboard_url: Optional[str] = Field(
+        default="http://localhost:8000",
+        description="URL of the Quality Dashboard API"
     )
     num_examples: Optional[int] = Field(
         default=20,
@@ -82,7 +93,35 @@ class DatasetConfig(BaseModel):
         """Validate that required fields are present based on mode."""
         if self.mode == "static" and not self.path:
             raise ValueError("Dataset path is required when mode is 'static'")
+        if self.mode == "dashboard" and not self.dataset_name:
+            raise ValueError("Dataset name is required when mode is 'dashboard'")
         return self
+
+
+class CustomEvaluatorConfig(BaseModel):
+    """
+    Configuration for a custom evaluator defined in user code.
+
+    Allows teams to define their own evaluators by specifying a Python
+    module and class name. The class should inherit from EvaluatorSpec
+    or follow the same interface.
+
+    Attributes:
+        module: Python module path, e.g. "my_app.evaluators"
+        class_name: Class name within the module, e.g. "BrandVoiceEvaluator"
+    """
+    module: str = Field(
+        ...,
+        description="Python module path containing the evaluator class"
+    )
+    class_name: str = Field(
+        ...,
+        alias="class",
+        description="Name of the evaluator class to instantiate"
+    )
+
+    class Config:
+        populate_by_name = True
 
 
 class ThresholdConfig(BaseModel):
@@ -122,7 +161,7 @@ class EvalConfig(BaseModel):
     - App identification
     - Adapter for running the app
     - Dataset source
-    - Evaluation suite to apply
+    - Evaluation suite to apply (and/or custom evaluators)
     - Pass/fail thresholds
 
     Attributes:
@@ -130,7 +169,8 @@ class EvalConfig(BaseModel):
         app_type: Type of LLM application (affects dataset generation and eval choice)
         adapter: Configuration for the team's adapter function
         dataset: Configuration for the evaluation dataset
-        eval_suite: Name of the evaluation suite to run
+        eval_suite: Name of the evaluation suite to run (optional if custom_evaluators provided)
+        custom_evaluators: List of custom evaluator configurations
         thresholds: Dictionary of metric names to threshold configurations
     """
     app_name: str = Field(
@@ -149,14 +189,27 @@ class EvalConfig(BaseModel):
         ...,
         description="Dataset configuration"
     )
-    eval_suite: str = Field(
-        ...,
-        description="Name of the evaluation suite to run"
+    eval_suite: Optional[str] = Field(
+        default=None,
+        description="Name of the evaluation suite to run (optional if custom_evaluators provided)"
+    )
+    custom_evaluators: List[CustomEvaluatorConfig] = Field(
+        default_factory=list,
+        description="List of custom evaluator configurations"
     )
     thresholds: Dict[str, ThresholdConfig] = Field(
         default_factory=dict,
         description="Metric thresholds for pass/fail determination"
     )
+
+    @model_validator(mode="after")
+    def validate_has_evaluators(self) -> "EvalConfig":
+        """Ensure at least one of eval_suite or custom_evaluators is specified."""
+        if not self.eval_suite and not self.custom_evaluators:
+            raise ValueError(
+                "At least one of 'eval_suite' or 'custom_evaluators' must be specified"
+            )
+        return self
 
 
 def load_eval_config(path: str) -> EvalConfig:

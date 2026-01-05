@@ -31,6 +31,8 @@ interface TestCase {
   input: string
   output: string | null
   context: string | null
+  prompt: string | null
+  trace_id: string | null
   scores: Score[]
   failure: Failure | null
 }
@@ -48,6 +50,9 @@ interface RunDetail {
   git_branch: string | null
   git_commit: string | null
   config_path: string | null
+  total_cost: number | null
+  app_cost: number | null
+  eval_cost: number | null
   created_at: string
   metrics: Metric[]
   test_cases: TestCase[]
@@ -88,6 +93,12 @@ export default function RunDetails() {
     const mins = Math.floor(seconds / 60)
     const secs = Math.round(seconds % 60)
     return `${mins}m ${secs}s`
+  }
+
+  const formatCost = (cost: number | null) => {
+    if (cost === null || cost === undefined) return '-'
+    if (cost < 0.01) return `$${cost.toFixed(4)}`
+    return `$${cost.toFixed(2)}`
   }
 
   // Light header component
@@ -218,6 +229,30 @@ export default function RunDetails() {
             </div>
           </div>
 
+          {/* Cost Breakdown */}
+          {(run.total_cost !== null || run.app_cost !== null || run.eval_cost !== null) && (
+            <div className="light-card p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Cost Breakdown</h2>
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">App Cost</div>
+                  <div className="text-2xl font-bold text-gray-900 font-mono">{formatCost(run.app_cost)}</div>
+                  <div className="text-xs text-gray-500 mt-1">Output generation</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Eval Cost</div>
+                  <div className="text-2xl font-bold text-gray-900 font-mono">{formatCost(run.eval_cost)}</div>
+                  <div className="text-xs text-gray-500 mt-1">LLM judging</div>
+                </div>
+                <div className="text-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                  <div className="text-xs text-blue-600 uppercase tracking-wider mb-2">Total Cost</div>
+                  <div className="text-2xl font-bold text-blue-700 font-mono">{formatCost(run.total_cost)}</div>
+                  <div className="text-xs text-blue-500 mt-1">Combined</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Metrics */}
           <div className="light-card mb-6">
             <div className="px-6 py-4 border-b border-gray-200">
@@ -339,27 +374,54 @@ export default function RunDetails() {
 
                     {isExpanded && (
                       <div className="px-6 pb-6 space-y-4 bg-gray-50">
-                        <div className="grid gap-4">
-                          <div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Input</div>
-                            <div className="bg-white border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-wrap">
-                              {tc.input}
-                            </div>
+                        {/* View Trace Button */}
+                        {tc.trace_id && (
+                          <div className="flex justify-end">
+                            <Link
+                              to={`/traces/${tc.trace_id}`}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              View Trace
+                            </Link>
                           </div>
+                        )}
 
-                          {tc.output && (
+                        <div className="grid gap-4">
+                          {/* Full LLM Prompt */}
+                          {tc.prompt && (
                             <div>
-                              <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Output</div>
-                              <div className="bg-white border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-wrap">
-                                {tc.output}
+                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Full Prompt (sent to LLM)</div>
+                              <div className="bg-gray-900 text-gray-100 border border-gray-700 rounded-lg p-4 whitespace-pre-wrap font-mono text-sm max-h-64 overflow-y-auto">
+                                {tc.prompt}
                               </div>
                             </div>
                           )}
 
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">User Input</div>
+                              <div className="bg-white border border-gray-300 rounded-lg p-4 text-gray-900 whitespace-pre-wrap">
+                                {tc.input}
+                              </div>
+                            </div>
+
+                            {tc.output && (
+                              <div>
+                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Model Response</div>
+                                <div className="bg-white border border-gray-300 rounded-lg p-4 text-gray-900 whitespace-pre-wrap">
+                                  {tc.output}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
                           {tc.context && (
                             <div>
-                              <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Context</div>
-                              <div className="bg-white border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">RAG Context</div>
+                              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-gray-900 whitespace-pre-wrap max-h-48 overflow-y-auto">
                                 {tc.context}
                               </div>
                             </div>

@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-export default function Header() {
+interface HeaderProps {
+  variant?: 'dark' | 'light'
+}
+
+export default function Header({ variant = 'dark' }: HeaderProps) {
   const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const isLandingPage = location.pathname === '/'
@@ -22,13 +26,51 @@ export default function Header() {
       return location.pathname.startsWith('/docs')
     }
     if (path === '/dashboard') {
-      return location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/runs')
+      return location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/runs') || location.pathname.startsWith('/traces')
     }
     return location.pathname === path
   }
 
-  // On landing page: transparent at top, black when scrolled
-  // On other pages: always black/80 with blur
+  // Light variant: white background with gray border
+  if (variant === 'light') {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center transition-transform group-hover:scale-105">
+                <span className="text-white font-bold text-sm">CE</span>
+              </div>
+              <span className="font-semibold text-lg text-gray-900">Company Eval</span>
+            </Link>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Link
+                to="/docs"
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/docs')
+                    ? 'text-gray-900 bg-gray-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                Docs
+              </Link>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-900 text-white hover:bg-gray-800"
+              >
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+    )
+  }
+
+  // Dark variant (default): for landing page
   const headerBg = isLandingPage
     ? scrolled
       ? 'bg-black border-white/10'

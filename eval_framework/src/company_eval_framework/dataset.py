@@ -1,17 +1,22 @@
 """
 Dataset loading and generation module.
 
-This module handles both static dataset loading (from JSONL/CSV files)
-and synthetic dataset generation using LLMs. Teams can use either approach
-depending on their evaluation needs.
+This module handles dataset loading from multiple sources:
+- Static files (JSONL/CSV)
+- Synthetic generation using LLMs
+- Quality Dashboard (fetch by dataset name)
+
+Teams can use any approach depending on their evaluation needs.
 """
 
 import json
 import uuid
 from pathlib import Path
 from typing import List, Optional
+from urllib.parse import urljoin
 
 import pandas as pd
+import requests
 from openai import OpenAI
 
 from .config import EvalConfig
@@ -156,6 +161,101 @@ def generate_synthetic_dataset(config: EvalConfig) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+def load_dashboard_dataset(config: EvalConfig) -> pd.DataFrame:
+    """
+    Load a dataset from the Quality Dashboard by name.
+
+    Fetches the dataset from the dashboard's API endpoint and converts
+    the examples to a DataFrame format suitable for evaluation.
+
+    Args:
+        config: Evaluation configuration containing dashboard settings
+
+    Returns:
+        DataFrame with the loaded dataset containing:
+        - conversation_id: Unique identifier for each example
+        - input: The user query/input text
+        - expected_output: (optional) Expected model response
+        - context: (optional) RAG context
+
+    Raises:
+        ValueError: If dataset_name is not specified
+        requests.HTTPError: If the API request fails
+        ConnectionError: If the dashboard is not reachable
+
+    Example YAML configuration:
+        dataset:
+          mode: "dashboard"
+          dataset_name: "customer-support-failures-v2"
+          dashboard_url: "http://localhost:8000"  # optional
+    """
+    dataset_name = config.dataset.dataset_name
+    if not dataset_name:
+        raise ValueError("Dataset name is required for dashboard mode")
+
+    dashboard_url = config.dataset.dashboard_url or "http://localhost:8000"
+
+    # Ensure URL ends without trailing slash for clean joining
+    dashboard_url = dashboard_url.rstrip("/")
+    api_url = f"{dashboard_url}/api/datasets/by-name/{dataset_name}"
+
+    print(f"  Fetching dataset '{dataset_name}' from dashboard...")
+
+    try:
+        response = requests.get(api_url, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError:
+        raise ConnectionError(
+            f"Could not connect to Quality Dashboard at {dashboard_url}. "
+            "Make sure the dashboard is running."
+        )
+    except requests.exceptions.HTTPError as e:
+        if response.status_code == 404:
+            raise ValueError(
+                f"Dataset '{dataset_name}' not found in the Quality Dashboard. "
+                "Check the dataset name or create it first."
+            )
+        raise
+
+    data = response.json()
+    examples = data.get("examples", [])
+
+    if not examples:
+        raise ValueError(
+            f"Dataset '{dataset_name}' has no examples. "
+            "Add examples to the dataset before using it."
+        )
+
+    # Convert to DataFrame format expected by the evaluation framework
+    records = []
+    for i, example in enumerate(examples):
+        record = {
+            "conversation_id": f"dashboard_{dataset_name}_{i}",
+            "input": example.get("input", ""),
+        }
+
+        # Include optional fields if present
+        if example.get("expected_output"):
+            record["expected_output"] = example["expected_output"]
+        if example.get("context"):
+            record["context"] = example["context"]
+
+        # Parse metadata if present
+        if example.get("metadata"):
+            try:
+                metadata = json.loads(example["metadata"])
+                record.update(metadata)
+            except (json.JSONDecodeError, TypeError):
+                pass  # Skip invalid metadata
+
+        records.append(record)
+
+    df = pd.DataFrame(records)
+    print(f"  Loaded {len(df)} examples from dashboard dataset '{dataset_name}'")
+
+    return df
+
+
 def _get_simple_chat_prompt(description: str, context: str) -> str:
     """Generate system prompt for simple chat dataset generation."""
     return f"""You are a test data generator for a customer support chatbot.
@@ -229,8 +329,10 @@ def build_dataset(config: EvalConfig) -> pd.DataFrame:
     Build the evaluation dataset based on configuration.
 
     This is the main entry point for dataset creation. It dispatches
-    to either static loading or synthetic generation based on the
-    config's dataset mode.
+    to the appropriate loading method based on the config's dataset mode:
+    - static: Load from JSONL/CSV file
+    - synthetic: Generate using LLM
+    - dashboard: Fetch from Quality Dashboard by name
 
     Args:
         config: Evaluation configuration
@@ -243,10 +345,17 @@ def build_dataset(config: EvalConfig) -> pd.DataFrame:
         >>> df = build_dataset(config)
         >>> print(df.columns)
         Index(['conversation_id', 'input'], dtype='object')
+
+    Example YAML for dashboard mode:
+        dataset:
+          mode: "dashboard"
+          dataset_name: "customer-support-failures-v2"
     """
     if config.dataset.mode == "static":
         return load_static_dataset(config)
     elif config.dataset.mode == "synthetic":
         return generate_synthetic_dataset(config)
+    elif config.dataset.mode == "dashboard":
+        return load_dashboard_dataset(config)
     else:
         raise ValueError(f"Unknown dataset mode: {config.dataset.mode}")

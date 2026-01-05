@@ -1,0 +1,39 @@
+# Example evaluation config with custom evaluators
+#
+# This config demonstrates how to use custom evaluators alongside
+# or instead of the built-in evaluation suites.
+
+app_name: basic_chat_with_custom_evals
+app_type: simple_chat
+
+adapter:
+  module: "example_team_project.my_app.eval_adapter"
+  function: "run_simple_llm_batch"
+
+dataset:
+  mode: "static"
+  path: "example_team_project/data/eval_dataset.jsonl"
+
+# Use the basic_chat suite as a base
+eval_suite: "basic_chat"
+
+# Add custom evaluators on top
+custom_evaluators:
+  - module: example_team_project.my_evaluators
+    class: BrandVoiceEvaluator
+  - module: example_team_project.my_evaluators
+    class: ResponseLengthEvaluator
+
+# Set thresholds for both built-in and custom metrics
+thresholds:
+  # Built-in metrics from basic_chat suite
+  user_frustration:
+    max_mean: 0.3
+  helpfulness_quality:
+    min_mean: 0.7
+
+  # Custom metrics
+  brand_voice:
+    min_mean: 0.8
+  response_length:
+    min_mean: 0.7

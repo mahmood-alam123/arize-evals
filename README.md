@@ -392,24 +392,309 @@ company-eval --help
 
 ---
 
+## Iterative Improvement Workflow
+
+The eval framework enables a fast feedback loop for improving your LLM app locally:
+
+```
+Run Eval → See Failures → Analyze Root Cause → Make Changes → Re-run → See Improvement
+```
+
+Below are practical examples for each app type.
+
+---
+
+### Example 1: Simple Chat - Reducing User Frustration
+
+A customer support chatbot is frustrating users with generic responses.
+
+**Configuration:**
+```yaml
+app_name: support-bot
+app_type: simple_chat
+eval_suite: basic_chat
+thresholds:
+  user_frustration:
+    max_mean: 0.30
+  helpfulness_quality:
+    min_mean: 0.70
+```
+
+**Initial Run:**
+```bash
+company-eval ci-run --config eval_config.yaml
+```
+
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+user_frustration              0.45         <= 0.30  [!!] FAIL
+helpfulness_quality           0.72         >= 0.70  [OK] PASS
+
+Failure Analysis:
+  - generic_response: 5 (45%)
+  - missed_question: 3 (27%)
+  - no_acknowledgment: 3 (27%)
+```
+
+**The Problem:** Bot responds with generic templates without acknowledging the user's specific issue.
+
+**The Fix:** Update system prompt to be more empathetic:
+```python
+# Before
+SYSTEM_PROMPT = "You are a helpful assistant."
+
+# After
+SYSTEM_PROMPT = """You are a helpful customer support assistant.
+- First, acknowledge the user's specific concern
+- Be empathetic and understanding
+- Then provide a clear, actionable solution"""
+```
+
+**After the Fix:**
+```bash
+company-eval ci-run --config eval_config.yaml
+```
+
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+user_frustration              0.22         <= 0.30  [OK] PASS
+helpfulness_quality           0.78         >= 0.70  [OK] PASS
+
+FINAL RESULT: PASS
+```
+
+---
+
+### Example 2: RAG - Eliminating Hallucinations
+
+A documentation Q&A bot is making up information not in the source documents.
+
+**Configuration:**
+```yaml
+app_name: docs-qa
+app_type: rag
+eval_suite: basic_rag
+thresholds:
+  hallucination:
+    max_mean: 0.20
+  answer_quality:
+    min_mean: 0.75
+```
+
+**Initial Run:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+hallucination                 0.40         <= 0.20  [!!] FAIL
+document_relevance            0.82         >= 0.80  [OK] PASS
+answer_quality                0.65         >= 0.75  [!!] FAIL
+
+Failure Analysis:
+  - hallucination: 8 (67%)
+  - incomplete_answer: 4 (33%)
+```
+
+**The Problem:** Model invents features and details not present in retrieved context.
+
+**The Fix:** Strengthen grounding and lower creativity:
+```python
+# Before
+SYSTEM_PROMPT = "Answer the user's question based on the provided context."
+
+# After
+SYSTEM_PROMPT = """Answer the user's question using ONLY the provided context.
+- If the answer is not in the context, say "I don't have that information"
+- Never make up features, prices, or details
+- Quote directly from the context when possible"""
+
+# Also reduce temperature
+response = client.chat.completions.create(
+    model="gpt-4o",
+    temperature=0.1,  # Was 0.7
+    messages=messages
+)
+```
+
+**After the Fix:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+hallucination                 0.12         <= 0.20  [OK] PASS
+document_relevance            0.85         >= 0.80  [OK] PASS
+answer_quality                0.81         >= 0.75  [OK] PASS
+
+FINAL RESULT: PASS
+```
+
+---
+
+### Example 3: Agent - Improving Tool Selection
+
+A task automation agent is calling tools unnecessarily and making poor selections.
+
+**Configuration:**
+```yaml
+app_name: task-agent
+app_type: agent
+eval_suite: agent
+thresholds:
+  tool_use_appropriateness:
+    min_mean: 0.80
+  planning_quality:
+    min_mean: 0.75
+```
+
+**Initial Run:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+tool_use_appropriateness      0.55         >= 0.80  [!!] FAIL
+planning_quality              0.70         >= 0.75  [!!] FAIL
+
+Failure Analysis:
+  - unnecessary_api_call: 6 (40%)
+  - wrong_tool_selected: 5 (33%)
+  - missing_tool_call: 4 (27%)
+```
+
+**The Problem:** Agent calls search API when data is already in memory, selects wrong tools.
+
+**The Fix:** Improve tool descriptions and add explicit planning step:
+```python
+# Before
+tools = [
+    {"name": "search", "description": "Search for information"},
+    {"name": "calculate", "description": "Do math"},
+]
+
+# After - Clearer descriptions with when to use
+tools = [
+    {
+        "name": "search_external",
+        "description": "Search external sources. Use ONLY when information is not in the conversation or provided context."
+    },
+    {
+        "name": "calculate",
+        "description": "Perform mathematical calculations. Use for any numeric operations."
+    },
+]
+
+# Add planning instruction
+SYSTEM_PROMPT = """Before taking any action:
+1. List what information you already have
+2. Identify what's missing
+3. Choose the most direct tool to get missing info
+4. Explain your tool choice before calling it"""
+```
+
+**After the Fix:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+tool_use_appropriateness      0.88         >= 0.80  [OK] PASS
+planning_quality              0.82         >= 0.75  [OK] PASS
+
+FINAL RESULT: PASS
+```
+
+---
+
+### Example 4: Multi-Agent - Better Coordination
+
+A research multi-agent system produces redundant work with incoherent final outputs.
+
+**Configuration:**
+```yaml
+app_name: research-system
+app_type: multi_agent
+eval_suite: multi_agent
+thresholds:
+  overall_answer_quality:
+    min_mean: 0.80
+  planning_quality:
+    min_mean: 0.75
+```
+
+**Initial Run:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+overall_answer_quality        0.60         >= 0.80  [!!] FAIL
+planning_quality              0.68         >= 0.75  [!!] FAIL
+
+Failure Analysis:
+  - redundant_work: 5 (38%)
+  - poor_synthesis: 4 (31%)
+  - missing_handoff: 4 (31%)
+```
+
+**The Problem:** Agents work on overlapping tasks, no clear synthesis step.
+
+**The Fix:** Add explicit handoff protocol and synthesis agent:
+```python
+# Before - loose coordination
+agents = [research_agent, analysis_agent]
+result = run_agents(agents, query)
+
+# After - structured workflow with handoffs
+ORCHESTRATOR_PROMPT = """You coordinate a research team:
+1. PLAN: Break the query into distinct, non-overlapping sub-tasks
+2. ASSIGN: Give each agent ONE specific sub-task
+3. COLLECT: Gather all agent outputs
+4. SYNTHESIZE: Combine into a coherent final answer
+
+After each agent completes, summarize what they found before moving to the next."""
+
+# Add synthesis step
+agents = [research_agent, analysis_agent, synthesis_agent]
+result = run_agents_with_handoffs(agents, query, orchestrator=ORCHESTRATOR_PROMPT)
+```
+
+**After the Fix:**
+```
+Metric                       Score       Threshold     Status
+------------------------------------------------------------
+overall_answer_quality        0.85         >= 0.80  [OK] PASS
+planning_quality              0.79         >= 0.75  [OK] PASS
+
+FINAL RESULT: PASS
+```
+
+---
+
+### Tips for Effective Iteration
+
+| Tip | Why It Helps |
+|-----|--------------|
+| **Start with 5-10 test cases** | Fast feedback loop, quick iterations |
+| **Fix one metric at a time** | Easier to isolate what works |
+| **Read the failure analysis** | Axial coding tells you *why* things fail |
+| **Track changes with git** | Know which change improved which metric |
+| **Increase dataset size later** | Once core issues fixed, test broader coverage |
+| **Use static datasets for regression** | Same inputs = reliable trend tracking |
+
+---
+
+## Recently Shipped
+
+| Feature | Description |
+|---------|-------------|
+| **Quality Dashboard** | Web UI for tracking evaluation trends over time, comparing branches, and drilling into failures |
+| **Slack/Teams Notifications** | Alert channels when CI evals fail with summary and links to details |
+| **Custom Evaluator Templates** | Define your own LLM-as-judge evaluators with custom prompts and rubrics |
+| **Cost Tracking** | Track OpenAI/Azure spend per evaluation run with budget alerts |
+| **MCP Server** | Model Context Protocol server enabling AI assistants to run evals, check results, and manage datasets conversationally |
+
 ## Roadmap
 
 ### Near-Term
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **Quality Dashboard** | Web UI for tracking evaluation trends over time, comparing branches, and drilling into failures | In Progress |
-| **Slack/Teams Notifications** | Alert channels when CI evals fail with summary and links to details | Planned |
-| **Custom Evaluator Templates** | Define your own LLM-as-judge evaluators with custom prompts and rubrics | Planned |
-| **Cost Tracking** | Track OpenAI/Azure spend per evaluation run with budget alerts | Planned |
-
-### Mid-Term
 
 | Feature | Description |
 |---------|-------------|
 | **Production Traffic Sampling** | `company-eval sample-prod` to pull real user interactions for evaluation |
 | **A/B Experiment Analysis** | Compare evaluation metrics between model versions or prompt variants |
-| **MCP Server** | Model Context Protocol server enabling AI assistants to run evals, check results, and manage datasets conversationally |
 
 ### Long-Term Vision
 

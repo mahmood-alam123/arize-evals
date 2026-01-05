@@ -20,10 +20,10 @@ export default function Introduction() {
             Get up and running in 5 minutes with your first evaluation.
           </p>
         </Link>
-        <Link to="/docs/eval-suites" className="block p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 mt-0">Eval Suites →</h3>
+        <Link to="/docs/how-it-works" className="block p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 mt-0">How It Works →</h3>
           <p className="text-gray-500 text-sm mb-0">
-            Explore built-in evaluation suites for different app types.
+            Understand the evaluation pipeline and what happens when you run.
           </p>
         </Link>
       </div>

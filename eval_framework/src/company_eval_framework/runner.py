@@ -25,9 +25,9 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from .axial import run_axial_coding_sync, summarize_failure_types, get_failure_examples
-from .config import EvalConfig, ThresholdConfig, load_eval_config
+from .config import EvalConfig, ThresholdConfig, CustomEvaluatorConfig, load_eval_config
 from .dataset import build_dataset
-from .evaluators import build_eval_suite, get_llm_judge, run_evaluations_sync
+from .evaluators import build_eval_suite, get_llm_judge, run_evaluations_sync, EvaluatorSpec
 from .utils import read_jsonl, write_jsonl
 
 
@@ -46,24 +46,40 @@ class EvaluationResults:
     duration_seconds: float
     git_branch: Optional[str] = None
     git_commit: Optional[str] = None
+    total_cost: Optional[float] = None
+    app_cost: Optional[float] = None
+    eval_cost: Optional[float] = None
     metrics: List[Dict[str, Any]] = field(default_factory=list)
     test_cases: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for API submission."""
         return {
-            "passed": self.passed,
+            "passed": bool(self.passed),
             "app_name": self.app_name,
             "app_type": self.app_type,
             "eval_suite": self.eval_suite,
             "config_path": self.config_path,
-            "dataset_size": self.dataset_size,
+            "dataset_size": int(self.dataset_size),
             "started_at": self.started_at.isoformat(),
             "finished_at": self.finished_at.isoformat(),
-            "duration_seconds": self.duration_seconds,
+            "duration_seconds": float(self.duration_seconds),
             "git_branch": self.git_branch,
             "git_commit": self.git_commit,
-            "metrics": self.metrics,
+            "total_cost": self.total_cost,
+            "app_cost": self.app_cost,
+            "eval_cost": self.eval_cost,
+            "metrics": [
+                {
+                    "name": m["name"],
+                    "mean_score": float(m["mean_score"]),
+                    "failure_rate": float(m["failure_rate"]),
+                    "threshold_type": m["threshold_type"],
+                    "threshold_value": float(m["threshold_value"]) if m["threshold_value"] is not None else None,
+                    "passed": bool(m["passed"]),
+                }
+                for m in self.metrics
+            ],
             "test_cases": self.test_cases,
         }
 
@@ -82,6 +98,40 @@ def _get_git_info() -> Tuple[Optional[str], Optional[str]]:
         return branch, commit
     except Exception:
         return None, None
+
+
+def _load_custom_evaluators(configs: List[CustomEvaluatorConfig]) -> List[EvaluatorSpec]:
+    """
+    Dynamically import and instantiate custom evaluators.
+
+    Args:
+        configs: List of CustomEvaluatorConfig specifying module and class
+
+    Returns:
+        List of instantiated EvaluatorSpec objects
+
+    Raises:
+        ImportError: If the specified module cannot be imported
+        AttributeError: If the specified class doesn't exist in the module
+    """
+    evaluators = []
+    for config in configs:
+        try:
+            module = importlib.import_module(config.module)
+            evaluator_class = getattr(module, config.class_name)
+            evaluator = evaluator_class()
+            evaluators.append(evaluator)
+            print(f"  Loaded custom evaluator: {evaluator.name} from {config.module}.{config.class_name}")
+        except ImportError as e:
+            raise ImportError(
+                f"Could not import module '{config.module}': {e}. "
+                f"Make sure the module is in your PYTHONPATH."
+            )
+        except AttributeError as e:
+            raise AttributeError(
+                f"Could not find class '{config.class_name}' in module '{config.module}': {e}"
+            )
+    return evaluators
 
 
 def run_ci_evaluation(config_path: str, return_results: bool = False) -> int | EvaluationResults:
@@ -165,8 +215,18 @@ def run_ci_evaluation(config_path: str, return_results: bool = False) -> int | E
         eval_df = outputs_df
 
     # Step 5: Run evaluation suite
-    print(f"Running evaluation suite ({config.eval_suite})...")
-    evaluators = build_eval_suite(config.eval_suite)
+    evaluators = []
+
+    # Load base suite evaluators if specified
+    if config.eval_suite:
+        print(f"Running evaluation suite ({config.eval_suite})...")
+        evaluators.extend(build_eval_suite(config.eval_suite))
+
+    # Load custom evaluators if specified
+    if config.custom_evaluators:
+        print(f"Loading {len(config.custom_evaluators)} custom evaluator(s)...")
+        evaluators.extend(_load_custom_evaluators(config.custom_evaluators))
+
     llm = get_llm_judge()
 
     print(f"  Evaluators: {', '.join(e.name for e in evaluators)}")
@@ -297,8 +357,8 @@ def _build_test_case_results(
                 if score < 1.0:
                     has_failure = True
                 scores.append({
-                    "metric_name": evaluator.name,
-                    "score": score,
+                    "metric_name": str(evaluator.name),
+                    "score": float(score),
                     "label": str(row.get(label_col, "")),
                     "explanation": str(row.get(explanation_col, "")),
                 })

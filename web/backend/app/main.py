@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from .database import create_tables
-from .api import runs
+from .api import runs, integrations, traces, datasets
 from .seed import seed_demo_data
 
 # Create FastAPI app
@@ -33,6 +33,9 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(runs.router)
+app.include_router(integrations.router)
+app.include_router(traces.router)
+app.include_router(datasets.router)
 
 
 @app.on_event("startup")

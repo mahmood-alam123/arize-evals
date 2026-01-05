@@ -15,6 +15,8 @@ from ..schemas import (
     TestCaseResponse,
     TestCaseScoreResponse,
     FailureResponse,
+    RunComparisonResponse,
+    MetricComparison,
 )
 
 router = APIRouter(prefix="/api/runs", tags=["runs"])
@@ -63,6 +65,9 @@ def get_run(run_id: str, db: Session = Depends(get_db)):
         git_branch=run.git_branch,
         git_commit=run.git_commit,
         config_path=run.config_path,
+        total_cost=run.total_cost,
+        app_cost=run.app_cost,
+        eval_cost=run.eval_cost,
         created_at=run.created_at,
         metrics=[MetricResponse.model_validate(m) for m in run.metrics],
         test_cases=[
@@ -72,6 +77,8 @@ def get_run(run_id: str, db: Session = Depends(get_db)):
                 input=tc.input,
                 output=tc.output,
                 context=tc.context,
+                prompt=tc.prompt,
+                trace_id=tc.trace_id,
                 scores=[TestCaseScoreResponse.model_validate(s) for s in tc.scores],
                 failure=FailureResponse.model_validate(tc.failure) if tc.failure else None,
             )
@@ -98,6 +105,9 @@ def create_run(run_data: RunCreate, db: Session = Depends(get_db)):
         git_branch=run_data.git_branch,
         git_commit=run_data.git_commit,
         config_path=run_data.config_path,
+        total_cost=run_data.total_cost,
+        app_cost=run_data.app_cost,
+        eval_cost=run_data.eval_cost,
     )
     db.add(run)
     db.flush()
@@ -123,6 +133,8 @@ def create_run(run_data: RunCreate, db: Session = Depends(get_db)):
             input=tc_data.input,
             output=tc_data.output,
             context=tc_data.context,
+            prompt=tc_data.prompt,
+            trace_id=tc_data.trace_id,
         )
         db.add(tc)
         db.flush()
@@ -147,3 +159,73 @@ def create_run(run_data: RunCreate, db: Session = Depends(get_db)):
 
     db.commit()
     return RunCreatedResponse(id=run.id)
+
+
+@router.get("/compare/{run_a_id}/{run_b_id}", response_model=RunComparisonResponse)
+def compare_runs(run_a_id: str, run_b_id: str, db: Session = Depends(get_db)):
+    """Compare two evaluation runs side-by-side."""
+    run_a = db.query(Run).filter(Run.id == run_a_id).first()
+    run_b = db.query(Run).filter(Run.id == run_b_id).first()
+
+    if not run_a:
+        raise HTTPException(status_code=404, detail=f"Run {run_a_id} not found")
+    if not run_b:
+        raise HTTPException(status_code=404, detail=f"Run {run_b_id} not found")
+
+    # Build metric comparison
+    metrics_a = {m.name: m for m in run_a.metrics}
+    metrics_b = {m.name: m for m in run_b.metrics}
+    all_metric_names = set(metrics_a.keys()) | set(metrics_b.keys())
+
+    metric_comparisons = []
+    improved_count = 0
+    regressed_count = 0
+
+    for name in sorted(all_metric_names):
+        m_a = metrics_a.get(name)
+        m_b = metrics_b.get(name)
+
+        score_a = m_a.mean_score if m_a else 0.0
+        score_b = m_b.mean_score if m_b else 0.0
+        passed_a = m_a.passed if m_a else False
+        passed_b = m_b.passed if m_b else False
+
+        delta = score_b - score_a
+        delta_percent = (delta / score_a * 100) if score_a > 0 else None
+
+        # Determine if improved (higher score = better)
+        improved = score_b > score_a
+
+        if improved:
+            improved_count += 1
+        elif score_b < score_a:
+            regressed_count += 1
+
+        metric_comparisons.append(
+            MetricComparison(
+                name=name,
+                run_a_score=score_a,
+                run_b_score=score_b,
+                delta=delta,
+                delta_percent=delta_percent,
+                run_a_passed=passed_a,
+                run_b_passed=passed_b,
+                improved=improved,
+            )
+        )
+
+    summary = {
+        "total_metrics": len(metric_comparisons),
+        "improved": improved_count,
+        "regressed": regressed_count,
+        "unchanged": len(metric_comparisons) - improved_count - regressed_count,
+        "run_a_passed": run_a.passed,
+        "run_b_passed": run_b.passed,
+    }
+
+    return RunComparisonResponse(
+        run_a=RunSummaryResponse.model_validate(run_a),
+        run_b=RunSummaryResponse.model_validate(run_b),
+        metrics=metric_comparisons,
+        summary=summary,
+    )

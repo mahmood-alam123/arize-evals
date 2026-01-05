@@ -5,21 +5,21 @@ function Landing() {
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Ambient glow effects - positioned lights */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        {/* Top left glow - blue/purple */}
-        <div className="absolute -top-[350px] -left-[250px] w-[800px] h-[800px] bg-gradient-radial from-blue-600/25 via-purple-600/10 to-transparent blur-[120px] animate-glow-slow" />
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        {/* Top left glow - blue */}
+        <div className="absolute -top-[300px] -left-[200px] w-[900px] h-[900px] bg-gradient-radial from-blue-600/50 via-blue-500/25 to-transparent blur-[100px]" />
 
-        {/* Top right glow - cyan/teal */}
-        <div className="absolute -top-[250px] -right-[150px] w-[650px] h-[650px] bg-gradient-radial from-cyan-500/20 via-teal-500/8 to-transparent blur-[100px] animate-glow-pulse" />
+        {/* Top right glow - cyan */}
+        <div className="absolute -top-[200px] -right-[100px] w-[750px] h-[750px] bg-gradient-radial from-cyan-500/45 via-blue-400/20 to-transparent blur-[80px]" />
 
-        {/* Middle left glow - purple */}
-        <div className="absolute top-[40%] -left-[180px] w-[550px] h-[550px] bg-gradient-radial from-purple-600/18 via-indigo-600/8 to-transparent blur-[100px] animate-glow-pulse" style={{ animationDelay: '2s' }} />
+        {/* Middle left glow - blue */}
+        <div className="absolute top-[35%] -left-[150px] w-[650px] h-[650px] bg-gradient-radial from-blue-500/45 via-cyan-500/20 to-transparent blur-[80px]" />
 
         {/* Middle right glow - blue */}
-        <div className="absolute top-[60%] -right-[120px] w-[450px] h-[450px] bg-gradient-radial from-blue-500/20 via-cyan-500/8 to-transparent blur-[90px] animate-glow-slow" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-[55%] -right-[100px] w-[550px] h-[550px] bg-gradient-radial from-blue-500/45 via-cyan-500/20 to-transparent blur-[70px]" />
 
-        {/* Bottom center glow - mixed */}
-        <div className="absolute -bottom-[150px] left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-radial from-indigo-600/22 via-purple-600/10 to-transparent blur-[120px] animate-glow-pulse" style={{ animationDelay: '1s' }} />
+        {/* Bottom center glow - blue */}
+        <div className="absolute -bottom-[100px] left-1/2 -translate-x-1/2 w-[1200px] h-[550px] bg-gradient-radial from-blue-600/50 via-blue-500/25 to-transparent blur-[100px]" />
       </div>
 
       <Header />
@@ -87,26 +87,136 @@ function Landing() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-white">4</div>
-              <div className="text-white/50 text-sm">App Types</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-white">10+</div>
-              <div className="text-white/50 text-sm">Built-in Evaluators</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-white">CI/CD</div>
-              <div className="text-white/50 text-sm">Native Integration</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-white">100%</div>
-              <div className="text-white/50 text-sm">Open Source</div>
-            </div>
+      {/* Use Cases Section */}
+      <section className="py-24 relative">
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-radial from-purple-600/12 via-transparent to-transparent blur-[100px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Built for every LLM use case
+            </h2>
+            <p className="text-white/50 text-lg max-w-2xl mx-auto">
+              Pre-built evaluation suites tailored to your application type
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Basic Chat */}
+            <Link to="/docs/use-cases/chat" className="card card-hover p-8 group">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 flex items-center justify-center mb-6 group-hover:from-blue-500/30 group-hover:to-cyan-500/30 transition-colors">
+                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Basic Chat</h3>
+              <p className="text-white/50 text-sm leading-relaxed mb-4">
+                Q&A bots, conversational interfaces, and customer support assistants.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Helpfulness</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-red-500/10 text-red-400 border border-red-500/20">Toxicity</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Frustration</span>
+              </div>
+            </Link>
+
+            {/* RAG */}
+            <Link to="/docs/use-cases/rag" className="card card-hover p-8 group">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mb-6 group-hover:from-emerald-500/30 group-hover:to-teal-500/30 transition-colors">
+                <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">RAG</h3>
+              <p className="text-white/50 text-sm leading-relaxed mb-4">
+                Retrieval-Augmented Generation apps that answer questions from your documents.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Hallucination</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Relevance</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Groundedness</span>
+              </div>
+            </Link>
+
+            {/* Agent / Multi-agent */}
+            <Link to="/docs/use-cases/agents" className="card card-hover p-8 group">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center mb-6 group-hover:from-purple-500/30 group-hover:to-pink-500/30 transition-colors">
+                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Agent / Multi-agent</h3>
+              <p className="text-white/50 text-sm leading-relaxed mb-4">
+                Tool-using agents and coordinated multi-agent systems.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 text-xs rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Planning</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">Tool Use</span>
+                <span className="px-2 py-1 text-xs rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">Coordination</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Tooling Section */}
+      <section className="py-24 border-t border-white/10 relative">
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-radial from-cyan-600/12 via-transparent to-transparent blur-[100px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Multiple ways to integrate
+            </h2>
+            <p className="text-white/50 text-lg max-w-2xl mx-auto">
+              Use the tooling that fits your workflow
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* SDK */}
+            <Link to="/docs/sdk" className="card card-hover p-6 text-center group">
+              <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-500/20 transition-colors">
+                <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">SDK</h3>
+              <p className="text-white/50 text-sm">Python SDK for programmatic evaluation</p>
+            </Link>
+
+            {/* CLI */}
+            <Link to="/docs/cli/ci-run" className="card card-hover p-6 text-center group">
+              <div className="w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">CLI</h3>
+              <p className="text-white/50 text-sm">Command-line interface for running evals</p>
+            </Link>
+
+            {/* CI/CD */}
+            <Link to="/docs/cicd" className="card card-hover p-6 text-center group">
+              <div className="w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-500/20 transition-colors">
+                <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">CI/CD</h3>
+              <p className="text-white/50 text-sm">GitHub Actions for automated testing</p>
+            </Link>
+
+            {/* MCP Server */}
+            <Link to="/docs/mcp" className="card card-hover p-6 text-center group">
+              <div className="w-14 h-14 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-500/20 transition-colors">
+                <svg className="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">MCP Server</h3>
+              <p className="text-white/50 text-sm">Model Context Protocol for AI assistants</p>
+            </Link>
           </div>
         </div>
       </section>
@@ -126,49 +236,10 @@ function Landing() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Quality Gates</h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                Automatically block PRs that don't meet quality thresholds. Define pass/fail criteria for each metric.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Multiple App Types</h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                Pre-built evaluation suites for Chat, RAG, Agents, and Multi-Agent systems. Works out of the box.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Failure Analysis</h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                When tests fail, get detailed axial coding that categorizes failures and explains what went wrong.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* Feature 1 - Quality Dashboard */}
+            <Link to="/docs/dashboard" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4 group-hover:bg-orange-500/20 transition-colors">
                 <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
@@ -177,81 +248,98 @@ function Landing() {
               <p className="text-white/50 text-sm leading-relaxed">
                 Track quality over time with a beautiful dashboard. See trends, drill into failures, compare runs.
               </p>
-            </div>
+            </Link>
 
-            {/* Feature 5 */}
+            {/* Feature 2 - CI/CD Quality Gates */}
             <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">CLI-First</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">CI/CD Quality Gates</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                One command to run evaluations. Integrate into any CI/CD pipeline with exit codes for automation.
+                Automatically block PRs that don't meet quality thresholds. Define pass/fail criteria for each metric.
               </p>
             </div>
 
-            {/* Feature 6 */}
-            <div className="card card-hover p-6">
-              <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            {/* Feature 3 - Static Datasets */}
+            <Link to="/docs/datasets" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Phoenix Evals</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Static Datasets</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                Built on Arize Phoenix Evals. Production-grade LLM judges for hallucination, toxicity, and more.
+                Curated test cases for regression testing. Track quality trends with consistent inputs across runs.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            </Link>
 
-      {/* How it works */}
-      <section className="py-24 border-t border-white/10 relative">
-        {/* Dual glow effect */}
-        <div className="absolute top-0 left-[20%] w-[450px] h-[450px] bg-gradient-radial from-purple-600/15 via-transparent to-transparent blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 right-[20%] w-[450px] h-[450px] bg-gradient-radial from-cyan-600/15 via-transparent to-transparent blur-[100px] pointer-events-none" />
+            {/* Feature 3 - Synthetic Datasets */}
+            <Link to="/docs/datasets" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-colors">
+                <svg className="w-6 h-6 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Synthetic Datasets</h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                Auto-generate test cases with LLMs. Broader coverage with fresh inputs tailored to your app.
+              </p>
+            </Link>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              How it works
-            </h2>
-            <p className="text-white/50 text-lg">
-              Get started in three simple steps
-            </p>
-          </div>
+            {/* Feature 4 - Failure Analysis */}
+            <Link to="/docs/failure-analysis" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Failure Analysis</h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                Axial coding categorizes failures by type. See exactly what went wrong with detailed breakdowns.
+              </p>
+            </Link>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
-                1
+            {/* Feature 5 - Custom Evaluators */}
+            <Link to="/docs/custom-evaluators" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
+                <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                </svg>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-3">Configure</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Custom Evaluators</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                Define your evaluation in a simple YAML file. Specify app type, dataset, and quality thresholds.
+                Define your own LLM-as-judge evaluators with custom prompts and rubrics for domain-specific needs.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
-                2
+            </Link>
+
+            {/* Feature 6 - Slack/Teams Notifications */}
+            <Link to="/docs/integrations" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center mb-4 group-hover:bg-fuchsia-500/20 transition-colors">
+                <svg className="w-6 h-6 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-3">Evaluate</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Slack & Teams Alerts</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                Run in CI/CD with <code>company-eval ci-run</code>. LLM judges assess quality automatically.
+                Get notified when evals fail. Webhook integrations for Slack and Microsoft Teams.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
-                3
+            </Link>
+
+            {/* Feature 8 - Cost Tracking */}
+            <Link to="/dashboard" className="card card-hover p-6 group">
+              <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center mb-4 group-hover:bg-teal-500/20 transition-colors">
+                <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-3">Monitor</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Cost Tracking</h3>
               <p className="text-white/50 text-sm leading-relaxed">
-                View results in the dashboard. Track trends, analyze failures, and ship with confidence.
+                Track OpenAI/Azure spend per evaluation run. Know exactly what your quality assurance costs.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
