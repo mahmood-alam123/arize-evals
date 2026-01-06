@@ -1,5 +1,7 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import NttDataLogo from '/workspaces/arize-evals/web/frontend/src/images/GlobalLogo_NTTDATA_FutureBlue_RGB.png'
+
 
 interface TocItem {
   id: string
@@ -122,11 +124,13 @@ export default function DocsLayout() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center transition-transform group-hover:scale-105">
-                <span className="text-white font-bold text-sm">CE</span>
-              </div>
-              <span className="font-semibold text-lg text-gray-900">Company Eval</span>
+            <Link to="/" className="flex items-center gap-2 group">
+              <img
+                src={NttDataLogo}
+                alt="NTT DATA"
+                className="h-6 w-auto object-contain translate-y-[.5px]"
+              />
+              <span className="font-semibold text-md text-gray-900">Company Eval</span>
             </Link>
 
             {/* Actions */}

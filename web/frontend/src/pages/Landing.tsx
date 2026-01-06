@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import Header from '../components/Header'
+import NttDataLogo from '/workspaces/arize-evals/web/frontend/src/images/GlobalLogo_NTTDATA_FutureBlue_RGB.png'
+
 
 function Landing() {
   return (
@@ -374,11 +376,15 @@ function Landing() {
       <footer className="py-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CE</span>
-              </div>
-              <span className="font-semibold text-white">Company Eval</span>
+            <div className="flex items-center gap-2">
+              <img
+                src={NttDataLogo}
+                alt="NTT DATA"
+                className="h-10 w-auto object-contain translate-y-[2px]"
+              />
+              <span className="font-semibold text-lg text-white leading-none">
+                Company Eval
+              </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-white/50">
               <Link to="/docs" className="hover:text-white transition-colors">Docs</Link>
