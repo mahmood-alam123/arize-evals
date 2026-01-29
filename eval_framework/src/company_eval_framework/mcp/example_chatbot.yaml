@@ -1,0 +1,39 @@
+# Example Evaluation Configuration
+# This configuration evaluates a simple chatbot application
+
+# Required: Name of your application
+app_name: "Example Chatbot"
+
+# Required: Type of application
+# Options: "chat", "rag", "agent", "multi_agent"
+app_type: "chat"
+
+# Required: Which evaluation suite to use
+# Options: "basic_chat", "basic_rag", "agent", "multi_agent"
+eval_suite: "basic_chat"
+
+# Required: Python module path to your adapter
+# The adapter implements the interface between the eval framework and your app
+adapter_module: "examples.adapters.chatbot_adapter"
+
+# Optional: Path to your test dataset
+# If not provided, you can generate one using the generate_dataset tool
+dataset_path: "examples/datasets/chatbot_test.jsonl"
+
+# Optional: Custom metrics and thresholds
+metrics:
+  - name: "response_quality"
+    threshold_type: "min"
+    threshold_value: 0.75
+  
+  - name: "coherence"
+    threshold_type: "min"
+    threshold_value: 0.8
+  
+  - name: "response_time"
+    threshold_type: "max"
+    threshold_value: 3.0
+
+# Optional: Additional configuration
+timeout_seconds: 300
+max_retries: 3
